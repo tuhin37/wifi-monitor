@@ -68,7 +68,14 @@ class IWScanner:
             ap["bssid"] = m.group(1).lower()
             m = re.search(r'SSID: (.+)', block)
             if m:
-                ap["ssid"] = m.group(1).strip()
+                raw_ssid = m.group(1).strip()
+                # Filter out hidden/null SSIDs
+                if raw_ssid and not all(c == '\x00' for c in raw_ssid) and not raw_ssid.startswith('\\x00'):
+                    ap["ssid"] = raw_ssid
+                else:
+                    ap["ssid"] = "(hidden)"
+            else:
+                ap["ssid"] = "(hidden)"
             m = re.search(r'freq: (\d+)', block)
             if m:
                 f = int(m.group(1))
