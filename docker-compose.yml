@@ -1,0 +1,120 @@
+# =============================================================================
+# WiFi Monitor Stack - Docker Compose
+# =============================================================================
+# Deploys: Kismet (wireless scanner) + Prometheus Exporter + Prometheus +
+#          Grafana dashboard.
+#
+# Hardware requirement: A wireless NIC in monitor mode on the host.
+# The Kismet container needs host networking + privileged access to access
+# the wireless interface.
+#
+# Usage:
+#   1. Put your wireless NIC in monitor mode:
+#      sudo ./scripts/setup-monitor-mode.sh wlan1
+#
+#   2. Copy and edit env file:
+#      cp .env.example .env
+#
+#   3. Start the stack:
+#      docker compose up -d
+#
+#   4. Access Grafana at http://<host-ip>:3000 (admin/admin)
+#      Import the dashboard from grafana/dashboards/
+#
+# Environment variables (.env):
+#   KISMET_USERNAME     - Kismet REST username (default: admin)
+#   KISMET_PASSWORD     - Kismet REST password (default: admin)
+#   EXPORTER_PORT       - Exporter metrics port  (default: 8501)
+#   WIFI_INTERFACE      - Wireless IF for iw survey (e.g. wlan1)
+#   PROMETHEUS_PORT     - Prometheus web port    (default: 9090)
+#   GRAFANA_PORT        - Grafana web port       (default: 3000)
+# =============================================================================
+
+services:
+
+  # ---- Kismet: Wireless sniffer / AP detector ----------------------------
+  kismet:
+    image: finchsec/kismet:latest
+    container_name: wifi-kismet
+    restart: unless-stopped
+    # Kismet needs host networking to access the physical wireless interface
+    network_mode: host
+    privileged: true
+    pid: host
+    environment:
+      - KISMET_USERNAME=${KISMET_USERNAME:-admin}
+      - KISMET_PASSWORD=${KISMET_PASSWORD:-admin}
+      - KISMET_LOG=/data/kismet.log
+    volumes:
+      # Persistent data (SQLite DB with device history)
+      - kismet_data:/data
+      # Optional: custom Kismet config
+      # - ./kismet/kismet_site.conf:/usr/local/etc/kismet_site.conf:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ---- Prometheus Exporter: Kismet metrics -> Prometheus ------------------
+  exporter:
+    build:
+      context: ./exporter
+      dockerfile: Dockerfile
+    container_name: wifi-exporter
+    restart: unless-stopped
+    ports:
+      - "${EXPORTER_PORT:-8501}:8501"
+    environment:
+      - KISMET_URL=http://127.0.0.1:2501
+      - KISMET_USERNAME=${KISMET_USERNAME:-admin}
+      - KISMET_PASSWORD=${KISMET_PASSWORD:-admin}
+      - EXPORTER_PORT=${EXPORTER_PORT:-8501}
+      - WIFI_INTERFACE=${WIFI_INTERFACE:-}
+      - POLL_INTERVAL=${POLL_INTERVAL:-15}
+    # The exporter calls Kismet's REST API via host network
+    network_mode: host
+    depends_on:
+      - kismet
+
+  # ---- Prometheus: Time-series database + alerting ------------------------
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wifi-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-admin-api"
+    depends_on:
+      - exporter
+
+  # ---- Grafana: Dashboards ------------------------------------------------
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wifi-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  kismet_data:
+  prometheus_data:
+  grafana_data:
