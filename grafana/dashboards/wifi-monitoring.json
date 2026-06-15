@@ -312,7 +312,7 @@
       "targets": [
         {
           "expr": "topk(10, wifi_ap_signal_dbm{type=~\".*AP.*\", band=~\"$band\"})",
-          "legendFormat": "{{ssid}}"
+          "legendFormat": "{{ssid}} ({{bssid}})"
         }
       ],
       "fieldConfig": {
