@@ -1,0 +1,115 @@
+"""Wi-Fi Monitor Exporter — Main Entry Point.
+
+Runs:
+1. Prometheus HTTP server (exposes /metrics)
+2. Background scanner loop (polls Kismet or runs iw scan)
+3. Task scheduler (connects to APs on schedule and runs speed tests)
+"""
+
+import asyncio
+import logging
+import os
+import signal
+import sys
+import time
+
+from prometheus_client import start_http_server
+
+from .config import Config
+from .database import Database
+from .scanner import Scanner
+from .metrics import Metrics
+from .scheduler import TaskScheduler  # noqa: F401 — imported to register tasks
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("wifi-monitor")
+
+
+class App:
+    def __init__(self, config: Config):
+        self.config = config
+        self.db = Database(os.path.join(config.exporter.data_dir, "wifi_monitor.db"))
+        self.metrics = Metrics()
+        self.scanner = Scanner(config)
+        self.scheduler = TaskScheduler(config, self.db, self.metrics)
+        self._running = True
+
+    async def scanner_loop(self):
+        logger.info(
+            "Scanner loop started (backend=%s, interface=%s, interval=%ds)",
+            self.config.scanner.backend,
+            self.config.scanner.interface,
+            self.config.scanner.poll_interval,
+        )
+        while self._running:
+            try:
+                t0 = time.time()
+                devices = await self.scanner.scan()
+                if devices:
+                    # Store in DB
+                    for d in devices:
+                        if "bssid" in d:
+                            self.db.upsert_ap(d["bssid"], d)
+                    # Update Prometheus metrics
+                    self.metrics.update_aps(devices)
+                    self.metrics.scanner_up.set(1)
+                    logger.debug("Scanned %d devices", len(devices))
+                else:
+                    self.metrics.scanner_up.set(0)
+                    logger.debug("No devices from scanner")
+            except Exception as e:
+                logger.error("Scan loop error: %s", e)
+                self.metrics.scanner_up.set(0)
+            await asyncio.sleep(self.config.scanner.poll_interval)
+
+    async def run(self):
+        # Start Prometheus HTTP server
+        start_http_server(self.config.exporter.port)
+        logger.info("Prometheus metrics at http://%s:%d/metrics",
+                     self.config.exporter.host, self.config.exporter.port)
+
+        # Start scheduler
+        if self.config.scheduler.enabled:
+            self.scheduler.start()
+
+        # Start scanner loop
+        await self.scanner_loop()
+
+
+def main():
+    config_path = os.environ.get("CONFIG_PATH", "")
+    config = Config.load(config_path or None)
+
+    app = App(config)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    def _shutdown():
+        logger.info("Shutting down...")
+        app._running = False
+        app.scheduler.shutdown()
+        # Give tasks time to finish
+        loop.call_later(3, loop.stop)
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            loop.add_signal_handler(sig, _shutdown)
+        except NotImplementedError:
+            # Windows or restricted
+            pass
+
+    try:
+        loop.run_until_complete(app.run())
+    except KeyboardInterrupt:
+        _shutdown()
+    finally:
+        loop.close()
+
+
+if __name__ == "__main__":
+    main()

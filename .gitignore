@@ -5,34 +5,36 @@ __pycache__/
 dist/
 build/
 .eggs/
-*.egg
 .venv/
 venv/
 
 # Environment
 .env
-*.env.local
+.env.local
+
+# Data
+/data/
+*.db
 
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo
 *~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Docker
+# Docker volumes (created at runtime)
 kismet_data/
+exporter_data/
 prometheus_data/
 grafana_data/
 
-# Kismet
+# Kismet artifacts
 *.pcapdump
 *.alert
-*.gpsxml
 
 # Logs
 *.log

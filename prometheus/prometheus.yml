@@ -1,36 +1,11 @@
-# Prometheus configuration for WiFi Monitor stack
+# Scrape config for Wi-Fi Monitor stack
 global:
   scrape_interval: 15s
-  evaluation_interval: 15s
   scrape_timeout: 10s
 
-# Alertmanager (optional - configure if needed)
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets:
-#           - alertmanager:9093
-
-# Rule files (optional - create prometheus/rules/ for alerts)
-# rule_files:
-#   - "rules/*.yml"
-
 scrape_configs:
-  # Scrape the WiFi Monitor exporter for Kismet-derived metrics
   - job_name: "wifi-monitor"
     static_configs:
       - targets: ["localhost:8501"]
         labels:
           service: "wifi-monitor"
-    scrape_interval: 15s
-    scrape_timeout: 10s
-
-  # Scrape Prometheus itself (optional, for debugging)
-  - job_name: "prometheus"
-    static_configs:
-      - targets: ["localhost:9090"]
-
-  # Optionally scrape the host's node_exporter if running on the same machine
-  # - job_name: "node"
-  #   static_configs:
-  #     - targets: ["localhost:9100"]

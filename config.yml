@@ -1,0 +1,24 @@
+exporter:
+  port: 8501
+  data_dir: /data
+
+scanner:
+  backend: kismet        # "kismet" or "iw"
+  interface: wlan1
+  kismet_url: http://127.0.0.1:2501
+  kismet_username: admin
+  kismet_password: admin
+  poll_interval: 15
+
+wifi:
+  management_interface: wlan0
+  backend: nmcli         # "nmcli" or "wpa_supplicant"
+
+speedtest:
+  backend: speedtest-cli # "speedtest-cli" or "iperf3"
+  iperf3_server: ""
+  timeout: 60
+
+scheduler:
+  enabled: true
+  default_schedule: "0 */6 * * *"
