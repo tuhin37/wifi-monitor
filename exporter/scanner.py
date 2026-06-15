@@ -95,7 +95,7 @@ class KismetScanner:
         import httpx
         try:
             async with httpx.AsyncClient(timeout=15) as client:
-                resp = await client.get(f"{self.url}/devices/all", auth=self.auth)
+                resp = await client.get(f"{self.url}/devices/last-time/0/devices.json", auth=self.auth)
                 resp.raise_for_status()
                 return self._parse(resp.json())
         except httpx.ConnectError:

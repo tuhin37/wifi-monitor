@@ -1,95 +1,565 @@
 {
-  "__inputs": [], "__requires": [], "editable": true, "graphTooltip": 2,
-  "style": "dark", "tags": ["wifi", "monitoring"], "timezone": "browser",
-  "title": "WiFi Monitor", "uid": "wifi-monitor",
-  "refresh": "15s", "version": 2,
-  "time": { "from": "now-6h", "to": "now" },
+  "title": "WiFi Monitor",
+  "uid": "wifi-monitor",
+  "tags": [
+    "wifi",
+    "monitoring"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 2,
+  "refresh": "15s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "templating": {
     "list": [
-      {"name":"ssid","type":"query","query":"label_values(wifi_ap_signal_dbm, ssid)","refresh":2,"includeAll":true,"multi":true,"sort":3},
-      {"name":"band","type":"query","query":"label_values(wifi_ap_band, band)","refresh":2,"includeAll":true,"multi":true,"sort":1}
+      {
+        "name": "ssid",
+        "type": "query",
+        "query": "label_values(wifi_ap_signal_dbm, ssid)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 3
+      },
+      {
+        "name": "band",
+        "type": "query",
+        "query": "label_values(wifi_ap_band, band)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1
+      }
     ]
   },
   "panels": [
-    { "id":1, "title":"Access Points","type":"stat","gridPos":{"h":3,"w":3,"x":0,"y":0},
-      "targets":[{"expr":"count(wifi_ap_signal_dbm{type=~\".*AP.*\"})"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"thresholds":{"mode":"absolute","steps":[{"color":"green","value":null}]},"unit":"none"}},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-    { "id":2, "title":"Clients","type":"stat","gridPos":{"h":3,"w":3,"x":3,"y":0},
-      "targets":[{"expr":"count(wifi_ap_signal_dbm{type=~\".*Client.*\"})"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"none"},"overrides":[]},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-    { "id":3, "title":"Avg Signal","type":"stat","gridPos":{"h":3,"w":3,"x":6,"y":0},
-      "targets":[{"expr":"avg(wifi_ap_signal_dbm{type=~\".*AP.*\"})"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"dBm","thresholds":{"mode":"absolute","steps":[{"color":"green","value":null},{"color":"yellow","value":-67},{"color":"red","value":-80}]}}},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-    { "id":4, "title":"Last Speedtest","type":"stat","gridPos":{"h":3,"w":6,"x":9,"y":0},
-      "targets":[{"expr":"max(wifi_speedtest_download_bps)"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"bps","thresholds":{"mode":"absolute","steps":[{"color":"red","value":null},{"color":"yellow","value":50000000},{"color":"green","value":100000000}]}}},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-    { "id":5, "title":"Channels Used","type":"stat","gridPos":{"h":3,"w":3,"x":15,"y":0},
-      "targets":[{"expr":"count(count by (channel) (wifi_ap_info))"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"none"},"options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} } },
-    { "id":6, "title":"Total Devices","type":"stat","gridPos":{"h":3,"w":3,"x":18,"y":0},
-      "targets":[{"expr":"count(wifi_ap_signal_dbm)"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"none"}},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-    { "id":7, "title":"Bands","type":"stat","gridPos":{"h":3,"w":3,"x":21,"y":0},
-      "targets":[{"expr":"count(count(avg by (band) (wifi_ap_band)) by (band))"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"unit":"none"}},
-      "options":{"colorMode":"background","graphMode":"area","reduceOptions":{"calcs":["lastNotNull"]},"textMode":"auto"} },
-
-    { "collapsed":false, "gridPos":{"h":1,"w":24,"x":0,"y":3}, "id":100, "panels":[], "title":"Signal & Spectrum", "type":"row" },
-
-    { "id":10, "title":"Signal Strength — Top 10 APs","type":"timeseries","gridPos":{"h":8,"w":12,"x":0,"y":4},
-      "targets":[{"expr":"topk(10, wifi_ap_signal_dbm{type=~\".*AP.*\"})","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"dBm","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":15,"showPoints":"never","spanNulls":true},"thresholds":{"mode":"absolute","steps":[{"color":"green","value":null},{"color":"yellow","value":-67},{"color":"red","value":-80}]}}},
-      "options":{"legend":{"calcs":["lastNotNull","max","min"],"displayMode":"table","placement":"right"}} },
-    { "id":11, "title":"SNR — Top 10 APs","type":"timeseries","gridPos":{"h":8,"w":12,"x":12,"y":4},
-      "targets":[{"expr":"topk(10, wifi_ap_snr_db)","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"dB","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":15,"showPoints":"never","spanNulls":true}}},
-      "options":{"legend":{"calcs":["lastNotNull","max","min"],"displayMode":"table","placement":"right"}} },
-    { "id":12, "title":"APS per Channel","type":"bargauge","gridPos":{"h":6,"w":12,"x":0,"y":12},
-      "targets":[{"expr":"count by (channel) (wifi_ap_info)"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"palette-classic"},"unit":"none"},"options":{"orientation":"horizontal","reduceOptions":{"calcs":["lastNotNull"]},"showThresholdLabels":false,"showThresholdMarkers":true}} },
-    { "id":13, "title":"APs by Band","type":"piechart","gridPos":{"h":6,"w":6,"x":12,"y":12},
-      "targets":[{"expr":"count by (band) (wifi_ap_info)"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"palette-classic"},"custom":{"hideFrom":{"legend":false,"tooltip":false,"viz":false}}}},
-      "options":{"pieType":"pie","displayLabels":["name","percent"],"legend":{"displayMode":"list","placement":"bottom","showLegend":true}} },
-    { "id":14, "title":"Encryption Types","type":"piechart","gridPos":{"h":6,"w":6,"x":18,"y":12},
-      "targets":[{"expr":"count by (encryption) (wifi_ap_info)"}],
-      "fieldConfig":{"defaults":{"color":{"mode":"palette-classic"},"custom":{"hideFrom":{"legend":false,"tooltip":false,"viz":false}}}},
-      "options":{"pieType":"pie","displayLabels":["name","percent"],"legend":{"displayMode":"list","placement":"bottom","showLegend":true}} },
-
-    { "collapsed":false, "gridPos":{"h":1,"w":24,"x":0,"y":18}, "id":101, "panels":[], "title":"Speed Tests", "type":"row" },
-
-    { "id":20, "title":"Download Throughput","type":"timeseries","gridPos":{"h":7,"w":12,"x":0,"y":19},
-      "targets":[{"expr":"wifi_speedtest_download_bps","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"bps","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":20,"showPoints":"always","pointSize":5,"spanNulls":true},"thresholds":{"mode":"absolute","steps":[{"color":"red","value":null},{"color":"yellow","value":50000000},{"color":"green","value":100000000}]}}},
-      "options":{"legend":{"calcs":["lastNotNull","max"],"displayMode":"table","placement":"right"}} },
-    { "id":21, "title":"Upload Throughput","type":"timeseries","gridPos":{"h":7,"w":12,"x":12,"y":19},
-      "targets":[{"expr":"wifi_speedtest_upload_bps","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"bps","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":20,"showPoints":"always","pointSize":5,"spanNulls":true}}},
-      "options":{"legend":{"calcs":["lastNotNull","max"],"displayMode":"table","placement":"right"}} },
-    { "id":22, "title":"Ping Latency","type":"timeseries","gridPos":{"h":6,"w":8,"x":0,"y":26},
-      "targets":[{"expr":"wifi_speedtest_ping_ms","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"ms","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":20,"showPoints":"always","pointSize":5,"spanNulls":true}}},
-      "options":{"legend":{"calcs":["lastNotNull","max"],"displayMode":"table","placement":"right"}} },
-    { "id":23, "title":"Jitter","type":"timeseries","gridPos":{"h":6,"w":8,"x":8,"y":26},
-      "targets":[{"expr":"wifi_speedtest_jitter_ms","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"ms","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":20,"showPoints":"always","pointSize":5,"spanNulls":true}}},
-      "options":{"legend":{"calcs":["lastNotNull","max"],"displayMode":"table","placement":"right"}} },
-    { "id":24, "title":"Packet Loss","type":"timeseries","gridPos":{"h":6,"w":8,"x":16,"y":26},
-      "targets":[{"expr":"wifi_speedtest_packet_loss","legendFormat":"{{ssid}}"}],
-      "fieldConfig":{"defaults":{"unit":"none","color":{"mode":"palette-classic"},"custom":{"drawStyle":"line","lineInterpolation":"smooth","lineWidth":2,"fillOpacity":20,"showPoints":"always","pointSize":5,"spanNulls":true}}},
-      "options":{"legend":{"calcs":["lastNotNull","max"],"displayMode":"table","placement":"right"}} },
-
-    { "collapsed":false, "gridPos":{"h":1,"w":24,"x":0,"y":32}, "id":102, "panels":[], "title":"AP Table", "type":"row" },
-
-    { "id":30, "title":"All Detected APs","type":"table","gridPos":{"h":12,"w":24,"x":0,"y":33},
-      "targets":[{"expr":"wifi_ap_info","format":"table","instant":true}],
-      "transformations":[{"id":"groupBy","options":{"fields":{"channel":{"aggregations":["lastNotNull"],"operation":"groupBy"},"band":{"aggregations":["lastNotNull"],"operation":"groupBy"},"encryption":{"aggregations":["lastNotNull"],"operation":"groupBy"},"ssid":{"aggregations":["lastNotNull"],"operation":"groupBy"},"type":{"aggregations":["lastNotNull"],"operation":"groupBy"},"vendor":{"aggregations":["lastNotNull"],"operation":"groupBy"}}}}],
-      "fieldConfig":{"defaults":{"color":{"mode":"thresholds"},"custom":{"align":"left","filterable":true,"displayMode":"auto"},"thresholds":{"mode":"absolute","steps":[{"color":"green","value":null}]}}},
-      "options":{"sortBy":[{"desc":true,"displayName":"channel"}],"footer":{"show":false},"showHeader":true} }
+    {
+      "id": 1,
+      "title": "Access Points",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "count(wifi_ap_signal_dbm{type=~'.*AP.*'})",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Total Devices",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "count(wifi_ap_signal_dbm)",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Avg Signal",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "avg(wifi_ap_signal_dbm)",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "dBm",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Channels Used",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "count(wifi_ap_channel)",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "title": "Bands",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "count(wifi_ap_count)",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Scanner",
+      "type": "stat",
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "wifi_scanner_up",
+          "legendFormat": ""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "none",
+          "mappings": [
+            {
+              "type": 1,
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Signal & Spectrum",
+      "type": "row"
+    },
+    {
+      "id": 10,
+      "title": "Signal Strength \u2014 Top 10",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "topk(10, wifi_ap_signal_dbm{type=~'.*AP.*'})",
+          "legendFormat": "{{ssid}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 15,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Frequency Distribution",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz))",
+          "legendFormat": "{{ssid}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "MHz"
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 12,
+      "title": "Devices by Band",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "wifi_ap_count{band='2.4 GHz'}",
+          "legendFormat": "2.4 GHz"
+        },
+        {
+          "expr": "wifi_ap_count{band='5 GHz'}",
+          "legendFormat": "5 GHz"
+        },
+        {
+          "expr": "wifi_ap_count{band='6 GHz'}",
+          "legendFormat": "6 GHz"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "none"
+        }
+      },
+      "options": {
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 101,
+      "panels": [],
+      "title": "Channel Details",
+      "type": "row"
+    },
+    {
+      "id": 20,
+      "title": "All Detected APs",
+      "type": "table",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "wifi_ap_signal_dbm",
+          "format": "table",
+          "instant": true
+        }
+      ],
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "ssid": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "groupBy"
+              },
+              "bssid": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "groupBy"
+              },
+              "type": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "groupBy"
+              }
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "filterable": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "ssid"
+          }
+        ],
+        "footer": {
+          "show": false
+        },
+        "showHeader": true
+      }
+    },
+    {
+      "id": 21,
+      "title": "Signal per Channel",
+      "type": "bargauge",
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 25
+      },
+      "targets": [
+        {
+          "expr": "avg by (ssid) (wifi_ap_signal_dbm)",
+          "legendFormat": "{{ssid}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      }
+    }
   ]
 }
