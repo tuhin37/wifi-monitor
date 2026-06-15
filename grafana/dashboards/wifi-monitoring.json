@@ -22,16 +22,18 @@
         "refresh": 2,
         "includeAll": true,
         "multi": true,
-        "sort": 3
+        "sort": 3,
+        "definition": "label_values(wifi_ap_signal_dbm, ssid)"
       },
       {
         "name": "band",
         "type": "query",
-        "query": "label_values(wifi_ap_band, band)",
+        "query": "label_values(wifi_ap_count, band)",
         "refresh": 2,
         "includeAll": true,
         "multi": true,
-        "sort": 1
+        "sort": 1,
+        "definition": "label_values(wifi_ap_count, band)"
       }
     ]
   },
@@ -309,7 +311,7 @@
       },
       "targets": [
         {
-          "expr": "topk(10, wifi_ap_signal_dbm{type=~'.*AP.*'})",
+          "expr": "topk(10, wifi_ap_signal_dbm{type=~\".*AP.*\", band=~\"$band\"})",
           "legendFormat": "{{ssid}}"
         }
       ],
@@ -452,7 +454,7 @@
     {
       "id": 20,
       "title": "All Detected APs",
-      "type": "stat",
+      "type": "table",
       "gridPos": {
         "h": 12,
         "w": 24,
@@ -461,7 +463,7 @@
       },
       "targets": [
         {
-          "expr": "topk(50, wifi_ap_signal_dbm)",
+          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm)",
           "legendFormat": "{{ssid}}",
           "refId": "A"
         }
@@ -471,6 +473,11 @@
         "defaults": {
           "color": {
             "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-background",
+            "filterable": true
           },
           "mappings": [],
           "thresholds": {
@@ -491,22 +498,37 @@
             ]
           },
           "unit": "dBm"
-        }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ssid"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "auto"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
       },
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": true
+        "footer": {
+          "show": false
         },
-        "textMode": "auto",
-        "wideLayout": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Value"
+          }
+        ]
       }
     },
     {
