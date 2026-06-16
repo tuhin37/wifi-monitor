@@ -472,362 +472,6 @@
       "type": "bargauge"
     },
     {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 3
-      },
-      "id": 100,
-      "panels": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "bfp80exy38jk0c"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": true,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "smooth",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "showValues": false,
-                "spanNulls": true,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "min": -100,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": -67
-                  },
-                  {
-                    "color": "red",
-                    "value": -80
-                  }
-                ]
-              },
-              "unit": "dBm"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 11,
-            "w": 12,
-            "x": 0,
-            "y": 4
-          },
-          "id": 10,
-          "options": {
-            "legend": {
-              "calcs": [
-                "lastNotNull",
-                "max",
-                "min"
-              ],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\"}))",
-              "legendFormat": "{{ssid}} ({{bssid}})",
-              "refId": "A"
-            }
-          ],
-          "title": "Signal Strength \u2014 2.4 GHz",
-          "transparent": true,
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "bfp80exy38jk0c"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": true,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "opacity",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "smooth",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "showValues": false,
-                "spanNulls": true,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "min": -100,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "yellow",
-                    "value": -67
-                  },
-                  {
-                    "color": "red",
-                    "value": -80
-                  }
-                ]
-              },
-              "unit": "dBm"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 11,
-            "w": 12,
-            "x": 12,
-            "y": 4
-          },
-          "id": 102,
-          "options": {
-            "legend": {
-              "calcs": [
-                "lastNotNull",
-                "max",
-                "min"
-              ],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\"}))",
-              "legendFormat": "{{ssid}} ({{bssid}})",
-              "refId": "A"
-            }
-          ],
-          "title": "Signal Strength \u2014 5 GHz",
-          "transparent": true,
-          "type": "timeseries"
-        },
-        {
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "MHz"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 12,
-            "x": 0,
-            "y": 32
-          },
-          "id": 11,
-          "options": {
-            "displayMode": "gradient",
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": false
-            },
-            "maxVizHeight": 300,
-            "minVizHeight": 16,
-            "minVizWidth": 8,
-            "namePlacement": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true,
-            "showUnfilled": true,
-            "sizing": "auto",
-            "valueMode": "color"
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"2.4 GHz\"}))",
-              "legendFormat": "{{ssid}}",
-              "refId": "A"
-            }
-          ],
-          "title": "Freq Dist \u2014 2.4 GHz",
-          "type": "bargauge"
-        },
-        {
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": 0
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "MHz"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 12,
-            "x": 12,
-            "y": 32
-          },
-          "id": 103,
-          "options": {
-            "displayMode": "gradient",
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": false
-            },
-            "maxVizHeight": 300,
-            "minVizHeight": 16,
-            "minVizWidth": 8,
-            "namePlacement": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showThresholdLabels": false,
-            "showThresholdMarkers": true,
-            "showUnfilled": true,
-            "sizing": "auto",
-            "valueMode": "color"
-          },
-          "pluginVersion": "12.2.1",
-          "targets": [
-            {
-              "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"5 GHz\"}))",
-              "legendFormat": "{{ssid}}",
-              "refId": "A"
-            }
-          ],
-          "title": "Freq Dist \u2014 5 GHz",
-          "type": "bargauge"
-        }
-      ],
-      "title": "Signal & Spectrum",
-      "type": "row"
-    },
-    {
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -958,12 +602,130 @@
       "type": "xychart"
     },
     {
+      "type": "bargauge",
+      "title": "Spectrum \u2014 2.4 GHz",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "topk(30, avg by (ssid) (wifi_ap_signal_dbm{band=\"2.4 GHz\"}))",
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "min": -100,
+          "max": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "valueMode": "color"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Spectrum \u2014 5 GHz",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "topk(30, avg by (ssid) (wifi_ap_signal_dbm{band=\"5 GHz\"}))",
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "showUnfilled": true,
+        "valueMode": "color"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "min": -100,
+          "max": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "valueMode": "color"
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
       "collapsed": false,
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 12
+        "y": 12,
+        "w": 24,
+        "h": 1
       },
       "id": 101,
       "panels": [],
@@ -1023,10 +785,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
         "x": 0,
-        "y": 13
+        "y": 13,
+        "w": 12,
+        "h": 12
       },
       "id": 20,
       "options": {
@@ -1103,10 +865,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
         "x": 12,
-        "y": 13
+        "y": 13,
+        "w": 12,
+        "h": 12
       },
       "id": 104,
       "options": {
@@ -1155,10 +917,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
         "x": 0,
-        "y": 25
+        "y": 25,
+        "w": 12,
+        "h": 9
       },
       "id": 21,
       "options": {
@@ -1223,10 +985,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
         "x": 12,
-        "y": 25
+        "y": 25,
+        "w": 12,
+        "h": 9
       },
       "id": 105,
       "options": {
