@@ -72,7 +72,7 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -131,7 +131,7 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -194,7 +194,7 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -253,7 +253,7 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -312,7 +312,7 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_channel)",
+          "expr": "count(wifi_ap_channel{ssid=~\"${ssid:regex}\"})",
           "legendFormat": "",
           "refId": "A"
         }
@@ -453,17 +453,17 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "wifi_ap_count{band='2.4 GHz'}",
+          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "2.4 GHz",
           "refId": "A"
         },
         {
-          "expr": "wifi_ap_count{band='5 GHz'}",
+          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "5 GHz",
           "refId": "B"
         },
         {
-          "expr": "wifi_ap_count{band='6 GHz'}",
+          "expr": "count(wifi_ap_signal_dbm{band=\"6 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "6 GHz",
           "refId": "C"
         }
@@ -472,152 +472,39 @@
       "type": "bargauge"
     },
     {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": true
-          },
-          "max": 0,
-          "min": -100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
-              },
-              {
-                "color": "red",
-                "value": -80
-              }
-            ]
-          },
-          "unit": "dBm"
-        },
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bfp80exy38jk0c"
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 12
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right"
-        }
-      },
-      "targets": [
-        {
-          "expr": "topk(10, wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\"})",
-          "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
-        }
-      ],
-      "title": "Signal Strength \u2014 5 GHz",
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "opacity",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "showPoints": "never",
-            "spanNulls": true
-          },
-          "max": 0,
-          "min": -100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
-              },
-              {
-                "color": "red",
-                "value": -80
-              }
-            ]
-          },
-          "unit": "dBm"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 12
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right"
-        }
-      },
-      "targets": [
-        {
-          "expr": "topk(10, wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\"})",
-          "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
-        }
-      ],
-      "title": "Signal Strength \u2014 2.4 GHz",
-      "type": "timeseries"
-    },
-    {
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 10,
+        "w": 24,
         "x": 0,
-        "y": 4
+        "y": 3
       },
+      "id": 108,
       "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
         "editor": {
           "format": "auto"
         },
         "editorMode": "code",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
         "getOption": "\nconst floor = -100;\nconst band = '2.4 GHz';\nconst defaultWidth = 22;\nconst xmin = 2400;\nconst xmax = 2500;\n\nfunction colorForSignal(signal) {\n  if (signal >= -55) return '#73bf69';\n  if (signal >= -67) return '#f2cc0c';\n  if (signal >= -80) return '#ff9830';\n  return '#d44a3a';\n}\n\nfunction sanitizeName(name, bssid) {\n  const s = name || '(unknown)';\n  if (s === '(hidden)') {\n    return `(hidden) ${String(bssid || '').slice(-4)}`;\n  }\n  return s;\n}\n\nconst aps = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  aps.push({ ssid, bssid, freq, signal, name: sanitizeName(ssid, bssid) });\n}\n\naps.sort((a, b) => a.freq - b.freq || b.signal - a.signal || a.name.localeCompare(b.name));\n\nconst freqCounts = new Map();\nfor (const ap of aps) {\n  freqCounts.set(ap.freq, (freqCounts.get(ap.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: count > 1 ? `${freq} MHz\\n${count} APs` : `${freq} MHz` }\n  }));\n\nconst series = aps.map((ap, idx) => {\n  const width = defaultWidth;\n  const half = width / 2;\n  const sigma = half / 2.15;\n  const start = Math.max(xmin, ap.freq - width * 1.25);\n  const end = Math.min(xmax, ap.freq + width * 1.25);\n  const samples = 41;\n  const data = [];\n\n  for (let i = 0; i < samples; i++) {\n    const x = start + ((end - start) * i) / (samples - 1);\n    const g = Math.exp(-0.5 * Math.pow((x - ap.freq) / sigma, 2));\n    // Convert negative dBm into a visible lobe from floor -> signal.\n    const y = floor + (ap.signal - floor) * g;\n    data.push([Number(x.toFixed(2)), Number(y.toFixed(1))]);\n  }\n\n  const color = colorForSignal(ap.signal);\n  return {\n    name: `${ap.freq} MHz \u00b7 ${ap.name}`,\n    type: 'line',\n    data,\n    smooth: true,\n    showSymbol: false,\n    symbol: 'circle',\n    lineStyle: { width: 1.4, color, opacity: 0.85 },\n    areaStyle: { color, opacity: 0.18 },\n    emphasis: {\n      focus: 'series',\n      lineStyle: { width: 3, opacity: 1 },\n      areaStyle: { opacity: 0.35 }\n    },\n    markPoint: {\n      symbol: 'circle',\n      symbolSize: 9,\n      silent: false,\n      itemStyle: { color, borderColor: '#ffffff', borderWidth: 1 },\n      label: {\n        show: true,\n        formatter: ap.name,\n        position: 'top',\n        distance: 5,\n        color: '#c7d0d9',\n        fontSize: 10,\n        overflow: 'truncate',\n        width: 105,\n        textBorderColor: '#111827',\n        textBorderWidth: 3\n      },\n      data: [{\n        coord: [ap.freq, ap.signal],\n        name: ap.name,\n        value: Number(ap.signal.toFixed(1)),\n        ssid: ap.ssid,\n        bssid: ap.bssid,\n        freq: ap.freq,\n        signal: ap.signal\n      }]\n    }\n  };\n});\n\n// Add one invisible scatter series so tooltips directly on peaks show AP metadata.\nseries.push({\n  name: 'AP peaks',\n  type: 'scatter',\n  data: aps.map((ap) => ({\n    value: [ap.freq, ap.signal],\n    ssid: ap.ssid,\n    bssid: ap.bssid,\n    freq: ap.freq,\n    signal: ap.signal,\n    name: ap.name\n  })),\n  symbolSize: 12,\n  itemStyle: { opacity: 0 },\n  tooltip: { show: true },\n  z: 20\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    confine: true,\n    formatter: (params) => {\n      const d = params.data || {};\n      if (d.ssid || d.bssid || d.freq) {\n        return [\n          `<b>${d.ssid || d.name || '(unknown)'}</b>`,\n          `BSSID: ${d.bssid || '-'}`,\n          `Frequency: ${d.freq} MHz`,\n          `Signal: ${Number(d.signal ?? params.value?.[1]).toFixed(1)} dBm`,\n          `Approx width: ${defaultWidth} MHz`\n        ].join('<br/>');\n      }\n      return `${params.seriesName}<br/>${params.value?.[0]} MHz: ${params.value?.[1]} dBm`;\n    }\n  },\n  legend: {\n    show: false,\n    type: 'scroll',\n    top: 0,\n    textStyle: { color: '#c7d0d9' }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: xmin,\n    max: xmax,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: floor,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  graphic: aps.length === 0 ? [{\n    type: 'text', left: 'center', top: 'middle',\n    style: { text: `No ${band} AP data`, fill: '#c7d0d9', fontSize: 16 }\n  }] : [],\n  series: [\n    {\n      name: 'Frequency occupancy',\n      type: 'line',\n      data: [],\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.18 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    },\n    ...series\n  ]\n};\n",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
         "map": "none",
         "renderer": "canvas",
         "themeEditor": {
@@ -633,31 +520,49 @@
       "pluginVersion": "7.2.2",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 2.4 GHz",
+      "transparent": true,
       "type": "volkovlabs-echarts-panel"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bfp80exy38jk0c"
+      },
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 4
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 13
       },
+      "id": 109,
       "options": {
+        "baidu": {
+          "callback": "bmapReady",
+          "key": ""
+        },
         "editor": {
           "format": "auto"
         },
         "editorMode": "code",
+        "gaode": {
+          "key": "",
+          "plugin": "AMap.Scale,AMap.ToolBar"
+        },
         "getOption": "\nconst floor = -100;\nconst band = '5 GHz';\nconst defaultWidth = 20;\nconst xmin = 5150;\nconst xmax = 5850;\n\nfunction colorForSignal(signal) {\n  if (signal >= -55) return '#73bf69';\n  if (signal >= -67) return '#f2cc0c';\n  if (signal >= -80) return '#ff9830';\n  return '#d44a3a';\n}\n\nfunction sanitizeName(name, bssid) {\n  const s = name || '(unknown)';\n  if (s === '(hidden)') {\n    return `(hidden) ${String(bssid || '').slice(-4)}`;\n  }\n  return s;\n}\n\nconst aps = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  aps.push({ ssid, bssid, freq, signal, name: sanitizeName(ssid, bssid) });\n}\n\naps.sort((a, b) => a.freq - b.freq || b.signal - a.signal || a.name.localeCompare(b.name));\n\nconst freqCounts = new Map();\nfor (const ap of aps) {\n  freqCounts.set(ap.freq, (freqCounts.get(ap.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: count > 1 ? `${freq} MHz\\n${count} APs` : `${freq} MHz` }\n  }));\n\nconst series = aps.map((ap, idx) => {\n  const width = defaultWidth;\n  const half = width / 2;\n  const sigma = half / 2.15;\n  const start = Math.max(xmin, ap.freq - width * 1.25);\n  const end = Math.min(xmax, ap.freq + width * 1.25);\n  const samples = 41;\n  const data = [];\n\n  for (let i = 0; i < samples; i++) {\n    const x = start + ((end - start) * i) / (samples - 1);\n    const g = Math.exp(-0.5 * Math.pow((x - ap.freq) / sigma, 2));\n    // Convert negative dBm into a visible lobe from floor -> signal.\n    const y = floor + (ap.signal - floor) * g;\n    data.push([Number(x.toFixed(2)), Number(y.toFixed(1))]);\n  }\n\n  const color = colorForSignal(ap.signal);\n  return {\n    name: `${ap.freq} MHz \u00b7 ${ap.name}`,\n    type: 'line',\n    data,\n    smooth: true,\n    showSymbol: false,\n    symbol: 'circle',\n    lineStyle: { width: 1.4, color, opacity: 0.85 },\n    areaStyle: { color, opacity: 0.18 },\n    emphasis: {\n      focus: 'series',\n      lineStyle: { width: 3, opacity: 1 },\n      areaStyle: { opacity: 0.35 }\n    },\n    markPoint: {\n      symbol: 'circle',\n      symbolSize: 9,\n      silent: false,\n      itemStyle: { color, borderColor: '#ffffff', borderWidth: 1 },\n      label: {\n        show: true,\n        formatter: ap.name,\n        position: 'top',\n        distance: 5,\n        color: '#c7d0d9',\n        fontSize: 10,\n        overflow: 'truncate',\n        width: 105,\n        textBorderColor: '#111827',\n        textBorderWidth: 3\n      },\n      data: [{\n        coord: [ap.freq, ap.signal],\n        name: ap.name,\n        value: Number(ap.signal.toFixed(1)),\n        ssid: ap.ssid,\n        bssid: ap.bssid,\n        freq: ap.freq,\n        signal: ap.signal\n      }]\n    }\n  };\n});\n\n// Add one invisible scatter series so tooltips directly on peaks show AP metadata.\nseries.push({\n  name: 'AP peaks',\n  type: 'scatter',\n  data: aps.map((ap) => ({\n    value: [ap.freq, ap.signal],\n    ssid: ap.ssid,\n    bssid: ap.bssid,\n    freq: ap.freq,\n    signal: ap.signal,\n    name: ap.name\n  })),\n  symbolSize: 12,\n  itemStyle: { opacity: 0 },\n  tooltip: { show: true },\n  z: 20\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    confine: true,\n    formatter: (params) => {\n      const d = params.data || {};\n      if (d.ssid || d.bssid || d.freq) {\n        return [\n          `<b>${d.ssid || d.name || '(unknown)'}</b>`,\n          `BSSID: ${d.bssid || '-'}`,\n          `Frequency: ${d.freq} MHz`,\n          `Signal: ${Number(d.signal ?? params.value?.[1]).toFixed(1)} dBm`,\n          `Approx width: ${defaultWidth} MHz`\n        ].join('<br/>');\n      }\n      return `${params.seriesName}<br/>${params.value?.[0]} MHz: ${params.value?.[1]} dBm`;\n    }\n  },\n  legend: {\n    show: false,\n    type: 'scroll',\n    top: 0,\n    textStyle: { color: '#c7d0d9' }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: xmin,\n    max: xmax,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: floor,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  graphic: aps.length === 0 ? [{\n    type: 'text', left: 'center', top: 'middle',\n    style: { text: `No ${band} AP data`, fill: '#c7d0d9', fontSize: 16 }\n  }] : [],\n  series: [\n    {\n      name: 'Frequency occupancy',\n      type: 'line',\n      data: [],\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.18 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    },\n    ...series\n  ]\n};\n",
+        "google": {
+          "callback": "gmapReady",
+          "key": ""
+        },
         "map": "none",
         "renderer": "canvas",
         "themeEditor": {
@@ -673,13 +578,222 @@
       "pluginVersion": "7.2.2",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
           "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 5 GHz",
+      "transparent": true,
       "type": "volkovlabs-echarts-panel"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bfp80exy38jk0c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 0,
+          "min": -100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 107,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"}))",
+          "legendFormat": "{{ssid}} ({{bssid}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Signal Strength \u2014 2.4 GHz",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bfp80exy38jk0c"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 0,
+          "min": -100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "id": 106,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\", ssid=~\"${ssid:regex}\"}))",
+          "legendFormat": "{{ssid}} ({{bssid}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Signal Strength \u2014 5 GHz",
+      "transparent": true,
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -687,7 +801,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 45
       },
       "id": 101,
       "panels": [],
@@ -750,7 +864,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 46
       },
       "id": 20,
       "options": {
@@ -766,8 +880,8 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "legendFormat": "{{ssid}} ({{bssid}})",
           "refId": "A"
         }
       ],
@@ -830,7 +944,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 46
       },
       "id": 104,
       "options": {
@@ -846,8 +960,8 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "legendFormat": "{{ssid}} ({{bssid}})",
           "refId": "A"
         }
       ],
@@ -882,7 +996,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 58
       },
       "id": 21,
       "options": {
@@ -914,8 +1028,8 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "legendFormat": "{{ssid}} ({{bssid}})",
           "refId": "A"
         }
       ],
@@ -950,7 +1064,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 58
       },
       "id": 105,
       "options": {
@@ -982,8 +1096,8 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "legendFormat": "{{ssid}} ({{bssid}})",
           "refId": "A"
         }
       ],
@@ -1008,7 +1122,14 @@
         "query": "label_values(wifi_ap_signal_dbm, ssid)",
         "refresh": 2,
         "sort": 3,
-        "type": "query"
+        "type": "query",
+        "label": "SSID",
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        }
       }
     ]
   },
@@ -1020,5 +1141,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 24
+  "version": 29
 }
