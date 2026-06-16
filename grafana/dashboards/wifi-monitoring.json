@@ -1,542 +1,969 @@
 {
-  "title": "WiFi Monitor",
-  "uid": "wifi-monitor-v2",
-  "tags": [
-    "wifi",
-    "monitoring"
-  ],
-  "timezone": "browser",
-  "schemaVersion": 39,
-  "version": 2,
-  "refresh": "15s",
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
-  "templating": {
+  "annotations": {
     "list": [
       {
-        "name": "ssid",
-        "type": "query",
-        "query": "label_values(wifi_ap_signal_dbm, ssid)",
-        "refresh": 2,
-        "includeAll": true,
-        "multi": true,
-        "sort": 3,
-        "definition": "label_values(wifi_ap_signal_dbm, ssid)"
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       }
     ]
   },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 38,
+  "links": [],
   "panels": [
     {
-      "id": 1,
-      "title": "2.4 GHz APs",
-      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 3,
         "w": 4,
         "x": 0,
         "y": 0
       },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "2.4 GHz APs",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "none"
         },
         "overrides": []
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 2,
-      "title": "5 GHz APs",
-      "type": "stat",
       "gridPos": {
         "h": 3,
         "w": 4,
         "x": 4,
         "y": 0
       },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "5 GHz APs",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "unit": "none"
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "unit": "dBm"
         },
         "overrides": []
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 3,
-      "title": "Avg Signal (2.4)",
-      "type": "stat",
       "gridPos": {
         "h": 3,
         "w": 4,
         "x": 8,
         "y": 0
       },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "Avg Signal (2.4)",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "unit": "dBm",
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
+                "value": 0
               },
               {
                 "color": "red",
-                "value": -80
+                "value": 80
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 4,
-      "title": "Avg Signal (5)",
-      "type": "stat",
       "gridPos": {
         "h": 3,
         "w": 4,
         "x": 12,
         "y": 0
       },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "Avg Signal (5)",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "none"
         },
         "overrides": []
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 5,
-      "title": "Channels Used",
-      "type": "stat",
       "gridPos": {
         "h": 3,
-        "w": 4,
+        "w": 3,
         "x": 16,
         "y": 0
       },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "count(wifi_ap_channel)",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "Channels Used",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "UP"
+                }
+              },
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
           "unit": "none"
         },
         "overrides": []
       },
+      "gridPos": {
+        "h": 3,
+        "w": 2,
+        "x": 19,
+        "y": 0
+      },
+      "id": 6,
       "options": {
         "colorMode": "background",
         "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "",
+          "values": false
         },
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 6,
-      "title": "Scanner",
-      "type": "stat",
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 0
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "wifi_scanner_up",
-          "legendFormat": ""
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
+      "title": "Scanner",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
-          "unit": "none",
-          "mappings": [
-            {
-              "type": 1,
-              "options": {
-                "0": {
-                  "text": "DOWN",
-                  "color": "red"
-                },
-                "1": {
-                  "text": "UP",
-                  "color": "green"
-                }
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
               }
-            }
-          ]
+            ]
+          },
+          "unit": "none"
         },
         "overrides": []
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "collapsed": false,
       "gridPos": {
-        "x": 0,
-        "y": 3,
-        "w": 24,
-        "h": 1
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 0
       },
-      "id": 100,
-      "panels": [],
-      "title": "Signal & Spectrum",
-      "type": "row"
-    },
-    {
-      "id": 10,
-      "title": "Signal Strength \u2014 2.4 GHz",
-      "type": "timeseries",
-      "gridPos": {
-        "x": 0,
-        "y": 4,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\"}))",
-          "legendFormat": "{{ssid}} ({{bssid}})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "dBm",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 25,
-            "showPoints": "never",
-            "spanNulls": true,
-            "gradientMode": "opacity"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
-              },
-              {
-                "color": "red",
-                "value": -80
-              }
-            ]
-          },
-          "min": -100,
-          "soft_max": 0
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right"
-        }
-      }
-    },
-    {
-      "id": 10,
-      "title": "Signal Strength \u2014 5 GHz",
-      "type": "timeseries",
-      "gridPos": {
-        "x": 12,
-        "y": 4,
-        "w": 12,
-        "h": 8
-      },
-      "targets": [
-        {
-          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\"}))",
-          "legendFormat": "{{ssid}} ({{bssid}})"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "dBm",
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 25,
-            "showPoints": "never",
-            "spanNulls": true,
-            "gradientMode": "opacity"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
-              },
-              {
-                "color": "red",
-                "value": -80
-              }
-            ]
-          },
-          "min": -100,
-          "soft_max": 0
-        }
-      },
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right"
-        }
-      }
-    },
-    {
-      "id": 11,
-      "title": "Freq Dist \u2014 2.4 GHz",
-      "type": "bargauge",
-      "gridPos": {
-        "x": 0,
-        "y": 12,
-        "w": 12,
-        "h": 5
-      },
-      "targets": [
-        {
-          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"2.4 GHz\"}))",
-          "legendFormat": "{{ssid}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "MHz"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
-    },
-    {
-      "id": 11,
-      "title": "Freq Dist \u2014 5 GHz",
-      "type": "bargauge",
-      "gridPos": {
-        "x": 12,
-        "y": 12,
-        "w": 12,
-        "h": 5
-      },
-      "targets": [
-        {
-          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"5 GHz\"}))",
-          "legendFormat": "{{ssid}}"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "MHz"
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
-    },
-    {
       "id": 12,
-      "title": "Devices by Band",
-      "type": "bargauge",
-      "gridPos": {
-        "x": 0,
-        "y": 17,
-        "w": 24,
-        "h": 5
-      },
-      "targets": [
-        {
-          "expr": "wifi_ap_count{band='2.4 GHz'}",
-          "legendFormat": "2.4 GHz"
-        },
-        {
-          "expr": "wifi_ap_count{band='5 GHz'}",
-          "legendFormat": "5 GHz"
-        },
-        {
-          "expr": "wifi_ap_count{band='6 GHz'}",
-          "legendFormat": "6 GHz"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "unit": "none"
-        }
-      },
       "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
         "orientation": "vertical",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "",
+          "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      }
+        "showThresholdMarkers": true,
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "expr": "wifi_ap_count{band='2.4 GHz'}",
+          "legendFormat": "2.4 GHz",
+          "refId": "A"
+        },
+        {
+          "expr": "wifi_ap_count{band='5 GHz'}",
+          "legendFormat": "5 GHz",
+          "refId": "B"
+        },
+        {
+          "expr": "wifi_ap_count{band='6 GHz'}",
+          "legendFormat": "6 GHz",
+          "refId": "C"
+        }
+      ],
+      "title": "Devices by Band",
+      "type": "bargauge"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 100,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bfp80exy38jk0c"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": true,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "min": -100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": -67
+                  },
+                  {
+                    "color": "red",
+                    "value": -80
+                  }
+                ]
+              },
+              "unit": "dBm"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 12,
+            "x": 0,
+            "y": 4
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "min"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\"}))",
+              "legendFormat": "{{ssid}} ({{bssid}})",
+              "refId": "A"
+            }
+          ],
+          "title": "Signal Strength \u2014 2.4 GHz",
+          "transparent": true,
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bfp80exy38jk0c"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": true,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "opacity",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "smooth",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": true,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "min": -100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": -67
+                  },
+                  {
+                    "color": "red",
+                    "value": -80
+                  }
+                ]
+              },
+              "unit": "dBm"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 11,
+            "w": 12,
+            "x": 12,
+            "y": 4
+          },
+          "id": 102,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "min"
+              ],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\"}))",
+              "legendFormat": "{{ssid}} ({{bssid}})",
+              "refId": "A"
+            }
+          ],
+          "title": "Signal Strength \u2014 5 GHz",
+          "transparent": true,
+          "type": "timeseries"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "MHz"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 0,
+            "y": 32
+          },
+          "id": 11,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color"
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"2.4 GHz\"}))",
+              "legendFormat": "{{ssid}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Freq Dist \u2014 2.4 GHz",
+          "type": "bargauge"
+        },
+        {
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "MHz"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 5,
+            "w": 12,
+            "x": 12,
+            "y": 32
+          },
+          "id": 103,
+          "options": {
+            "displayMode": "gradient",
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": false
+            },
+            "maxVizHeight": 300,
+            "minVizHeight": 16,
+            "minVizWidth": 8,
+            "namePlacement": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "showUnfilled": true,
+            "sizing": "auto",
+            "valueMode": "color"
+          },
+          "pluginVersion": "12.2.1",
+          "targets": [
+            {
+              "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"5 GHz\"}))",
+              "legendFormat": "{{ssid}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Freq Dist \u2014 5 GHz",
+          "type": "bargauge"
+        }
+      ],
+      "title": "Signal & Spectrum",
+      "type": "row"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "pointSize": {
+              "fixed": 5
+            }
+          },
+          "max": 0,
+          "min": -100,
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "series": [
+          {
+            "name": "ssid #A",
+            "pointSize": {
+              "fixed": 6
+            },
+            "show": "points",
+            "x": "Value #A",
+            "y": "Value #B"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "avg by (bssid, ssid) (wifi_ap_frequency_mhz{band=\"2.4 GHz\"})",
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
+        },
+        {
+          "expr": "avg by (bssid, ssid) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "legendFormat": "{{ssid}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Freq vs Signal \u2014 2.4 GHz",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "field": "bssid",
+            "mode": "outer"
+          }
+        }
+      ],
+      "type": "xychart"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "pointSize": {
+              "fixed": 5
+            }
+          },
+          "max": 0,
+          "min": -100,
+          "unit": "dBm"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "series": [
+          {
+            "name": "ssid #A",
+            "pointSize": {
+              "fixed": 6
+            },
+            "show": "points",
+            "x": "Value #A",
+            "y": "Value #B"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "avg by (bssid, ssid) (wifi_ap_frequency_mhz{band=\"5 GHz\"})",
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
+        },
+        {
+          "expr": "avg by (bssid, ssid) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "legendFormat": "{{ssid}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Freq vs Signal \u2014 5 GHz",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "field": "bssid",
+            "mode": "outer"
+          }
+        }
+      ],
+      "type": "xychart"
     },
     {
       "collapsed": false,
       "gridPos": {
-        "x": 0,
-        "y": 22,
+        "h": 1,
         "w": 24,
-        "h": 1
+        "x": 0,
+        "y": 12
       },
       "id": 101,
       "panels": [],
@@ -544,15 +971,75 @@
       "type": "row"
     },
     {
-      "id": 20,
-      "title": "Detected APs \u2014 2.4 GHz",
-      "type": "table",
-      "gridPos": {
-        "x": 0,
-        "y": 23,
-        "w": 12,
-        "h": 12
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ssid"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
       },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 13
+      },
+      "id": 20,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Value"
+          }
+        ]
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
@@ -560,7 +1047,10 @@
           "refId": "A"
         }
       ],
-      "transformations": [],
+      "title": "Detected APs \u2014 2.4 GHz",
+      "type": "table"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -568,8 +1058,14 @@
           },
           "custom": {
             "align": "left",
-            "displayMode": "color-background",
-            "filterable": true
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -577,7 +1073,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               },
               {
                 "color": "yellow",
@@ -599,10 +1095,6 @@
             },
             "properties": [
               {
-                "id": "custom.displayMode",
-                "value": "auto"
-              },
-              {
                 "id": "unit",
                 "value": "none"
               }
@@ -610,10 +1102,15 @@
           }
         ]
       },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "id": 104,
       "options": {
-        "footer": {
-          "show": false
-        },
+        "cellHeight": "sm",
         "showHeader": true,
         "sortBy": [
           {
@@ -621,18 +1118,8 @@
             "displayName": "Value"
           }
         ]
-      }
-    },
-    {
-      "id": 20,
-      "title": "Detected APs \u2014 5 GHz",
-      "type": "table",
-      "gridPos": {
-        "x": 12,
-        "y": 23,
-        "w": 12,
-        "h": 12
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
@@ -640,16 +1127,14 @@
           "refId": "A"
         }
       ],
-      "transformations": [],
+      "title": "Detected APs \u2014 5 GHz",
+      "type": "table"
+    },
+    {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "left",
-            "displayMode": "color-background",
-            "filterable": true
+            "mode": "palette-classic"
           },
           "mappings": [],
           "thresholds": {
@@ -657,121 +1142,159 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": -67
+                "value": 0
               },
               {
                 "color": "red",
-                "value": -80
+                "value": 80
               }
             ]
           },
           "unit": "dBm"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ssid"
-            },
-            "properties": [
-              {
-                "id": "custom.displayMode",
-                "value": "auto"
-              },
-              {
-                "id": "unit",
-                "value": "none"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
-      "options": {
-        "footer": {
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "Value"
-          }
-        ]
-      }
-    },
-    {
-      "id": 21,
-      "title": "Signal/Ch \u2014 2.4 GHz",
-      "type": "bargauge",
       "gridPos": {
-        "x": 0,
-        "y": 35,
+        "h": 9,
         "w": 12,
-        "h": 5
+        "x": 0,
+        "y": 25
       },
+      "id": 21,
+      "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true,
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": "{{ssid}}"
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
         }
       ],
+      "title": "Signal/Ch \u2014 2.4 GHz",
+      "type": "bargauge"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "dBm",
           "color": {
             "mode": "palette-classic"
-          }
-        }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": []
       },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 25
+      },
+      "id": 105,
       "options": {
+        "displayMode": "gradient",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "",
+          "values": false
         },
         "showThresholdLabels": true,
-        "showThresholdMarkers": true
-      }
-    },
-    {
-      "id": 21,
-      "title": "Signal/Ch \u2014 5 GHz",
-      "type": "bargauge",
-      "gridPos": {
-        "x": 12,
-        "y": 35,
-        "w": 12,
-        "h": 5
+        "showThresholdMarkers": true,
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
       },
+      "pluginVersion": "12.2.1",
       "targets": [
         {
           "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": "{{ssid}}"
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "dBm",
-          "color": {
-            "mode": "palette-classic"
-          }
-        }
-      },
-      "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "showThresholdLabels": true,
-        "showThresholdMarkers": true
-      }
+      "title": "Signal/Ch \u2014 5 GHz",
+      "type": "bargauge"
     }
-  ]
+  ],
+  "preload": false,
+  "refresh": "15s",
+  "schemaVersion": 42,
+  "tags": [
+    "wifi",
+    "monitoring"
+  ],
+  "templating": {
+    "list": [
+      {
+        "definition": "label_values(wifi_ap_signal_dbm, ssid)",
+        "includeAll": true,
+        "multi": true,
+        "name": "ssid",
+        "query": "label_values(wifi_ap_signal_dbm, ssid)",
+        "refresh": 2,
+        "sort": 3,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "WiFi Monitor",
+  "uid": "wifi-monitor",
+  "version": 6
 }
