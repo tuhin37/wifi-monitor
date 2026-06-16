@@ -29,6 +29,15 @@ class App:
         self.metrics = Metrics()
         self.scanner = Scanner(config)
         self._running = True
+        self._bring_up_interface()
+
+    @staticmethod
+    def _bring_up_interface():
+        import subprocess
+        try:
+            subprocess.run(["ip", "link", "set", "wlp5s0", "up"], check=False, capture_output=True)
+        except FileNotFoundError:
+            pass  # ip not available, hope the host has it up
 
     async def scanner_loop(self):
         logger.info("Scanner loop started (backend=%s, interface=%s, interval=%ds)",
