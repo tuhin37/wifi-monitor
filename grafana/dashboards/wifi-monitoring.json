@@ -325,10 +325,10 @@
             "drawStyle": "line",
             "lineInterpolation": "smooth",
             "lineWidth": 2,
-            "fillOpacity": 20,
+            "fillOpacity": 25,
             "showPoints": "never",
             "spanNulls": true,
-            "fillBelowTo": -100
+            "gradientMode": "opacity"
           },
           "thresholds": {
             "mode": "absolute",
