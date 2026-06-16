@@ -607,6 +607,11 @@
           "color": {
             "mode": "thresholds"
           },
+          "custom": {
+            "barWidth": 0.8,
+            "groupWidth": 70,
+            "showValue": "never"
+          },
           "max": 0,
           "min": -100,
           "thresholds": {
@@ -628,28 +633,7 @@
           },
           "unit": "dBm"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "freq"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "min",
-                "value": null
-              },
-              {
-                "id": "max",
-                "value": null
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -658,66 +642,37 @@
         "y": 4
       },
       "options": {
+        "barWidth": 0.8,
+        "groupWidth": 70,
         "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "displayMode": "hidden",
+          "showLegend": false
         },
-        "series": [
-          {
-            "name": "ssid",
-            "pointSize": {
-              "fixed": 8
-            },
-            "show": "points",
-            "x": "freq",
-            "y": "signal"
-          }
-        ]
+        "orientation": "vertical",
+        "showValue": false,
+        "xTickLabelRotation": 45
       },
       "targets": [
         {
-          "expr": "topk(30, avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"}))",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "legendFormat": "{{freq}} MHz",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 5 GHz",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {}
-        },
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "number",
-                "targetField": "freq"
-              }
-            ]
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "renameByName": {
-              "Value": "signal"
-            }
-          }
-        }
-      ],
-      "type": "xychart"
+      "transformations": [],
+      "type": "barchart"
     },
     {
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
+          },
+          "custom": {
+            "barWidth": 0.8,
+            "groupWidth": 70,
+            "showValue": "never"
           },
           "max": 0,
           "min": -100,
@@ -740,28 +695,7 @@
           },
           "unit": "dBm"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "freq"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "min",
-                "value": null
-              },
-              {
-                "id": "max",
-                "value": null
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -770,60 +704,26 @@
         "y": 4
       },
       "options": {
+        "barWidth": 0.8,
+        "groupWidth": 70,
         "legend": {
-          "displayMode": "list",
-          "placement": "right",
-          "showLegend": true
+          "displayMode": "hidden",
+          "showLegend": false
         },
-        "series": [
-          {
-            "name": "ssid",
-            "pointSize": {
-              "fixed": 8
-            },
-            "show": "points",
-            "x": "freq",
-            "y": "signal"
-          }
-        ]
+        "orientation": "vertical",
+        "showValue": false,
+        "xTickLabelRotation": 45
       },
       "targets": [
         {
-          "expr": "topk(30, avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"}))",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "legendFormat": "{{freq}} MHz",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 2.4 GHz",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {}
-        },
-        {
-          "id": "convertFieldType",
-          "options": {
-            "conversions": [
-              {
-                "destinationType": "number",
-                "targetField": "freq"
-              }
-            ]
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "renameByName": {
-              "Value": "signal"
-            }
-          }
-        }
-      ],
-      "type": "xychart"
+      "transformations": [],
+      "type": "barchart"
     },
     {
       "collapsed": false,
@@ -1164,5 +1064,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 19
+  "version": 21
 }
