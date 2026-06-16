@@ -510,10 +510,10 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 12,
-        "y": 12,
+        "h": 8,
         "w": 12,
-        "h": 8
+        "x": 12,
+        "y": 12
       },
       "options": {
         "legend": {
@@ -575,10 +575,10 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
-        "y": 12,
+        "h": 8,
         "w": 12,
-        "h": 8
+        "x": 0,
+        "y": 12
       },
       "options": {
         "legend": {
@@ -602,14 +602,35 @@
       "type": "timeseries"
     },
     {
-      "type": "volkovlabs-echarts-panel",
-      "title": "Spectrum \u2014 2.4 GHz",
-      "gridPos": {
-        "x": 0,
-        "y": 4,
-        "w": 12,
-        "h": 8
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "options": {
+        "editor": {
+          "format": "auto"
+        },
+        "editorMode": "code",
+        "getOption": "\nconst floor = -100;\nconst band = '2.4 GHz';\nconst defaultWidth = 22;\nconst xmin = 2400;\nconst xmax = 2500;\n\nfunction colorForSignal(signal) {\n  if (signal >= -55) return '#73bf69';\n  if (signal >= -67) return '#f2cc0c';\n  if (signal >= -80) return '#ff9830';\n  return '#d44a3a';\n}\n\nfunction sanitizeName(name, bssid) {\n  const s = name || '(unknown)';\n  if (s === '(hidden)') {\n    return `(hidden) ${String(bssid || '').slice(-4)}`;\n  }\n  return s;\n}\n\nconst aps = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  aps.push({ ssid, bssid, freq, signal, name: sanitizeName(ssid, bssid) });\n}\n\naps.sort((a, b) => a.freq - b.freq || b.signal - a.signal || a.name.localeCompare(b.name));\n\nconst freqCounts = new Map();\nfor (const ap of aps) {\n  freqCounts.set(ap.freq, (freqCounts.get(ap.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: count > 1 ? `${freq} MHz\\n${count} APs` : `${freq} MHz` }\n  }));\n\nconst series = aps.map((ap, idx) => {\n  const width = defaultWidth;\n  const half = width / 2;\n  const sigma = half / 2.15;\n  const start = Math.max(xmin, ap.freq - width * 1.25);\n  const end = Math.min(xmax, ap.freq + width * 1.25);\n  const samples = 41;\n  const data = [];\n\n  for (let i = 0; i < samples; i++) {\n    const x = start + ((end - start) * i) / (samples - 1);\n    const g = Math.exp(-0.5 * Math.pow((x - ap.freq) / sigma, 2));\n    // Convert negative dBm into a visible lobe from floor -> signal.\n    const y = floor + (ap.signal - floor) * g;\n    data.push([Number(x.toFixed(2)), Number(y.toFixed(1))]);\n  }\n\n  const color = colorForSignal(ap.signal);\n  return {\n    name: `${ap.freq} MHz \u00b7 ${ap.name}`,\n    type: 'line',\n    data,\n    smooth: true,\n    showSymbol: false,\n    symbol: 'circle',\n    lineStyle: { width: 1.4, color, opacity: 0.85 },\n    areaStyle: { color, opacity: 0.18 },\n    emphasis: {\n      focus: 'series',\n      lineStyle: { width: 3, opacity: 1 },\n      areaStyle: { opacity: 0.35 }\n    },\n    markPoint: {\n      symbol: 'circle',\n      symbolSize: 9,\n      silent: false,\n      itemStyle: { color, borderColor: '#ffffff', borderWidth: 1 },\n      label: {\n        show: true,\n        formatter: ap.name,\n        position: 'top',\n        distance: 5,\n        color: '#c7d0d9',\n        fontSize: 10,\n        overflow: 'truncate',\n        width: 105,\n        textBorderColor: '#111827',\n        textBorderWidth: 3\n      },\n      data: [{\n        coord: [ap.freq, ap.signal],\n        name: ap.name,\n        value: Number(ap.signal.toFixed(1)),\n        ssid: ap.ssid,\n        bssid: ap.bssid,\n        freq: ap.freq,\n        signal: ap.signal\n      }]\n    }\n  };\n});\n\n// Add one invisible scatter series so tooltips directly on peaks show AP metadata.\nseries.push({\n  name: 'AP peaks',\n  type: 'scatter',\n  data: aps.map((ap) => ({\n    value: [ap.freq, ap.signal],\n    ssid: ap.ssid,\n    bssid: ap.bssid,\n    freq: ap.freq,\n    signal: ap.signal,\n    name: ap.name\n  })),\n  symbolSize: 12,\n  itemStyle: { opacity: 0 },\n  tooltip: { show: true },\n  z: 20\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    confine: true,\n    formatter: (params) => {\n      const d = params.data || {};\n      if (d.ssid || d.bssid || d.freq) {\n        return [\n          `<b>${d.ssid || d.name || '(unknown)'}</b>`,\n          `BSSID: ${d.bssid || '-'}`,\n          `Frequency: ${d.freq} MHz`,\n          `Signal: ${Number(d.signal ?? params.value?.[1]).toFixed(1)} dBm`,\n          `Approx width: ${defaultWidth} MHz`\n        ].join('<br/>');\n      }\n      return `${params.seriesName}<br/>${params.value?.[0]} MHz: ${params.value?.[1]} dBm`;\n    }\n  },\n  legend: {\n    show: false,\n    type: 'scroll',\n    top: 0,\n    textStyle: { color: '#c7d0d9' }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: xmin,\n    max: xmax,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: floor,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  graphic: aps.length === 0 ? [{\n    type: 'text', left: 'center', top: 'middle',\n    style: { text: `No ${band} AP data`, fill: '#c7d0d9', fontSize: 16 }\n  }] : [],\n  series: [\n    {\n      name: 'Frequency occupancy',\n      type: 'line',\n      data: [],\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.18 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    },\n    ...series\n  ]\n};\n",
+        "map": "none",
+        "renderer": "canvas",
+        "themeEditor": {
+          "config": "{}",
+          "name": "default"
+        },
+        "visualEditor": {
+          "code": "return {};",
+          "dataset": [],
+          "series": []
+        }
+      },
+      "pluginVersion": "7.2.2",
       "targets": [
         {
           "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
@@ -617,21 +638,31 @@
           "refId": "A"
         }
       ],
+      "title": "Spectrum \u2014 2.4 GHz",
+      "type": "volkovlabs-echarts-panel"
+    },
+    {
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
       "options": {
-        "renderer": "canvas",
-        "map": "none",
-        "editorMode": "code",
-        "getOption": "\nconst points = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  points.push({\n    value: [freq, signal],\n    ssid,\n    bssid,\n    freq,\n    signal,\n    name: ssid,\n  });\n}\n\npoints.sort((a, b) => a.freq - b.freq || a.signal - b.signal || a.ssid.localeCompare(b.ssid));\n\nconst freqCounts = new Map();\nfor (const p of points) {\n  freqCounts.set(p.freq, (freqCounts.get(p.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: `${freq} MHz (${count})` }\n  }));\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    formatter: (params) => {\n      const d = params.data || {};\n      return [\n        `<b>${d.ssid || '(unknown)'}</b>`,\n        `BSSID: ${d.bssid || '-'}`,\n        `Frequency: ${d.freq} MHz`,\n        `Signal: ${Number(d.signal).toFixed(1)} dBm`,\n      ].join('<br/>');\n    }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: 2400,\n    max: 2500,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: -100,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  visualMap: {\n    show: false,\n    min: -90,\n    max: -35,\n    dimension: 1,\n    inRange: {\n      color: ['#d44a3a', '#f2cc0c', '#73bf69']\n    }\n  },\n  series: [\n    {\n      name: 'AP signal by frequency',\n      type: 'scatter',\n      data: points,\n      symbolSize: 14,\n      itemStyle: {\n        opacity: 0.9,\n        borderColor: '#ffffff',\n        borderWidth: 1\n      },\n      label: {\n        show: true,\n        formatter: (params) => params.data.ssid,\n        position: 'top',\n        fontSize: 10,\n        color: '#c7d0d9',\n        overflow: 'truncate',\n        width: 90\n      },\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.25 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    }\n  ]\n};\n",
         "editor": {
           "format": "auto"
         },
+        "editorMode": "code",
+        "getOption": "\nconst floor = -100;\nconst band = '5 GHz';\nconst defaultWidth = 20;\nconst xmin = 5150;\nconst xmax = 5850;\n\nfunction colorForSignal(signal) {\n  if (signal >= -55) return '#73bf69';\n  if (signal >= -67) return '#f2cc0c';\n  if (signal >= -80) return '#ff9830';\n  return '#d44a3a';\n}\n\nfunction sanitizeName(name, bssid) {\n  const s = name || '(unknown)';\n  if (s === '(hidden)') {\n    return `(hidden) ${String(bssid || '').slice(-4)}`;\n  }\n  return s;\n}\n\nconst aps = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  aps.push({ ssid, bssid, freq, signal, name: sanitizeName(ssid, bssid) });\n}\n\naps.sort((a, b) => a.freq - b.freq || b.signal - a.signal || a.name.localeCompare(b.name));\n\nconst freqCounts = new Map();\nfor (const ap of aps) {\n  freqCounts.set(ap.freq, (freqCounts.get(ap.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: count > 1 ? `${freq} MHz\\n${count} APs` : `${freq} MHz` }\n  }));\n\nconst series = aps.map((ap, idx) => {\n  const width = defaultWidth;\n  const half = width / 2;\n  const sigma = half / 2.15;\n  const start = Math.max(xmin, ap.freq - width * 1.25);\n  const end = Math.min(xmax, ap.freq + width * 1.25);\n  const samples = 41;\n  const data = [];\n\n  for (let i = 0; i < samples; i++) {\n    const x = start + ((end - start) * i) / (samples - 1);\n    const g = Math.exp(-0.5 * Math.pow((x - ap.freq) / sigma, 2));\n    // Convert negative dBm into a visible lobe from floor -> signal.\n    const y = floor + (ap.signal - floor) * g;\n    data.push([Number(x.toFixed(2)), Number(y.toFixed(1))]);\n  }\n\n  const color = colorForSignal(ap.signal);\n  return {\n    name: `${ap.freq} MHz \u00b7 ${ap.name}`,\n    type: 'line',\n    data,\n    smooth: true,\n    showSymbol: false,\n    symbol: 'circle',\n    lineStyle: { width: 1.4, color, opacity: 0.85 },\n    areaStyle: { color, opacity: 0.18 },\n    emphasis: {\n      focus: 'series',\n      lineStyle: { width: 3, opacity: 1 },\n      areaStyle: { opacity: 0.35 }\n    },\n    markPoint: {\n      symbol: 'circle',\n      symbolSize: 9,\n      silent: false,\n      itemStyle: { color, borderColor: '#ffffff', borderWidth: 1 },\n      label: {\n        show: true,\n        formatter: ap.name,\n        position: 'top',\n        distance: 5,\n        color: '#c7d0d9',\n        fontSize: 10,\n        overflow: 'truncate',\n        width: 105,\n        textBorderColor: '#111827',\n        textBorderWidth: 3\n      },\n      data: [{\n        coord: [ap.freq, ap.signal],\n        name: ap.name,\n        value: Number(ap.signal.toFixed(1)),\n        ssid: ap.ssid,\n        bssid: ap.bssid,\n        freq: ap.freq,\n        signal: ap.signal\n      }]\n    }\n  };\n});\n\n// Add one invisible scatter series so tooltips directly on peaks show AP metadata.\nseries.push({\n  name: 'AP peaks',\n  type: 'scatter',\n  data: aps.map((ap) => ({\n    value: [ap.freq, ap.signal],\n    ssid: ap.ssid,\n    bssid: ap.bssid,\n    freq: ap.freq,\n    signal: ap.signal,\n    name: ap.name\n  })),\n  symbolSize: 12,\n  itemStyle: { opacity: 0 },\n  tooltip: { show: true },\n  z: 20\n});\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    confine: true,\n    formatter: (params) => {\n      const d = params.data || {};\n      if (d.ssid || d.bssid || d.freq) {\n        return [\n          `<b>${d.ssid || d.name || '(unknown)'}</b>`,\n          `BSSID: ${d.bssid || '-'}`,\n          `Frequency: ${d.freq} MHz`,\n          `Signal: ${Number(d.signal ?? params.value?.[1]).toFixed(1)} dBm`,\n          `Approx width: ${defaultWidth} MHz`\n        ].join('<br/>');\n      }\n      return `${params.seriesName}<br/>${params.value?.[0]} MHz: ${params.value?.[1]} dBm`;\n    }\n  },\n  legend: {\n    show: false,\n    type: 'scroll',\n    top: 0,\n    textStyle: { color: '#c7d0d9' }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: xmin,\n    max: xmax,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: floor,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.22 } }\n  },\n  graphic: aps.length === 0 ? [{\n    type: 'text', left: 'center', top: 'middle',\n    style: { text: `No ${band} AP data`, fill: '#c7d0d9', fontSize: 16 }\n  }] : [],\n  series: [\n    {\n      name: 'Frequency occupancy',\n      type: 'line',\n      data: [],\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.18 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    },\n    ...series\n  ]\n};\n",
+        "map": "none",
+        "renderer": "canvas",
         "themeEditor": {
-          "name": "default",
-          "config": "{}"
+          "config": "{}",
+          "name": "default"
         },
         "visualEditor": {
           "code": "return {};",
@@ -639,17 +670,7 @@
           "series": []
         }
       },
-      "pluginVersion": "7.2.2"
-    },
-    {
-      "type": "volkovlabs-echarts-panel",
-      "title": "Spectrum \u2014 5 GHz",
-      "gridPos": {
-        "x": 12,
-        "y": 4,
-        "w": 12,
-        "h": 8
-      },
+      "pluginVersion": "7.2.2",
       "targets": [
         {
           "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
@@ -657,37 +678,16 @@
           "refId": "A"
         }
       ],
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "options": {
-        "renderer": "canvas",
-        "map": "none",
-        "editorMode": "code",
-        "getOption": "\nconst points = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  points.push({\n    value: [freq, signal],\n    ssid,\n    bssid,\n    freq,\n    signal,\n    name: ssid,\n  });\n}\n\npoints.sort((a, b) => a.freq - b.freq || a.signal - b.signal || a.ssid.localeCompare(b.ssid));\n\nconst freqCounts = new Map();\nfor (const p of points) {\n  freqCounts.set(p.freq, (freqCounts.get(p.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: `${freq} MHz (${count})` }\n  }));\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    formatter: (params) => {\n      const d = params.data || {};\n      return [\n        `<b>${d.ssid || '(unknown)'}</b>`,\n        `BSSID: ${d.bssid || '-'}`,\n        `Frequency: ${d.freq} MHz`,\n        `Signal: ${Number(d.signal).toFixed(1)} dBm`,\n      ].join('<br/>');\n    }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: 5150,\n    max: 5850,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: -100,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  visualMap: {\n    show: false,\n    min: -90,\n    max: -35,\n    dimension: 1,\n    inRange: {\n      color: ['#d44a3a', '#f2cc0c', '#73bf69']\n    }\n  },\n  series: [\n    {\n      name: 'AP signal by frequency',\n      type: 'scatter',\n      data: points,\n      symbolSize: 14,\n      itemStyle: {\n        opacity: 0.9,\n        borderColor: '#ffffff',\n        borderWidth: 1\n      },\n      label: {\n        show: true,\n        formatter: (params) => params.data.ssid,\n        position: 'top',\n        fontSize: 10,\n        color: '#c7d0d9',\n        overflow: 'truncate',\n        width: 90\n      },\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.25 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    }\n  ]\n};\n",
-        "editor": {
-          "format": "auto"
-        },
-        "themeEditor": {
-          "name": "default",
-          "config": "{}"
-        },
-        "visualEditor": {
-          "code": "return {};",
-          "dataset": [],
-          "series": []
-        }
-      },
-      "pluginVersion": "7.2.2"
+      "title": "Spectrum \u2014 5 GHz",
+      "type": "volkovlabs-echarts-panel"
     },
     {
       "collapsed": false,
       "gridPos": {
-        "x": 0,
-        "y": 20,
+        "h": 1,
         "w": 24,
-        "h": 1
+        "x": 0,
+        "y": 20
       },
       "id": 101,
       "panels": [],
@@ -747,10 +747,10 @@
         ]
       },
       "gridPos": {
-        "x": 0,
-        "y": 21,
+        "h": 12,
         "w": 12,
-        "h": 12
+        "x": 0,
+        "y": 21
       },
       "id": 20,
       "options": {
@@ -827,10 +827,10 @@
         ]
       },
       "gridPos": {
-        "x": 12,
-        "y": 21,
+        "h": 12,
         "w": 12,
-        "h": 12
+        "x": 12,
+        "y": 21
       },
       "id": 104,
       "options": {
@@ -879,10 +879,10 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 0,
-        "y": 33,
+        "h": 9,
         "w": 12,
-        "h": 9
+        "x": 0,
+        "y": 33
       },
       "id": 21,
       "options": {
@@ -947,10 +947,10 @@
         "overrides": []
       },
       "gridPos": {
-        "x": 12,
-        "y": 33,
+        "h": 9,
         "w": 12,
-        "h": 9
+        "x": 12,
+        "y": 33
       },
       "id": 105,
       "options": {
@@ -1020,5 +1020,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 23
+  "version": 24
 }
