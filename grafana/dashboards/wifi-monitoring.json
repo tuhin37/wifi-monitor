@@ -1,6 +1,6 @@
 {
   "title": "WiFi Monitor",
-  "uid": "wifi-monitor",
+  "uid": "wifi-monitor-v2",
   "tags": [
     "wifi",
     "monitoring"
@@ -24,23 +24,13 @@
         "multi": true,
         "sort": 3,
         "definition": "label_values(wifi_ap_signal_dbm, ssid)"
-      },
-      {
-        "name": "band",
-        "type": "query",
-        "query": "label_values(wifi_ap_count, band)",
-        "refresh": 2,
-        "includeAll": true,
-        "multi": true,
-        "sort": 1,
-        "definition": "label_values(wifi_ap_count, band)"
       }
     ]
   },
   "panels": [
     {
       "id": 1,
-      "title": "Access Points",
+      "title": "2.4 GHz APs",
       "type": "stat",
       "gridPos": {
         "h": 3,
@@ -50,7 +40,7 @@
       },
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{type=~'.*AP.*'})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
           "legendFormat": ""
         }
       ],
@@ -76,7 +66,7 @@
     },
     {
       "id": 2,
-      "title": "Total Devices",
+      "title": "5 GHz APs",
       "type": "stat",
       "gridPos": {
         "h": 3,
@@ -86,7 +76,7 @@
       },
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm)",
+          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\"})",
           "legendFormat": ""
         }
       ],
@@ -112,7 +102,7 @@
     },
     {
       "id": 3,
-      "title": "Avg Signal",
+      "title": "Avg Signal (2.4)",
       "type": "stat",
       "gridPos": {
         "h": 3,
@@ -122,7 +112,7 @@
       },
       "targets": [
         {
-          "expr": "avg(wifi_ap_signal_dbm)",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
           "legendFormat": ""
         }
       ],
@@ -165,7 +155,7 @@
     },
     {
       "id": 4,
-      "title": "Channels Used",
+      "title": "Avg Signal (5)",
       "type": "stat",
       "gridPos": {
         "h": 3,
@@ -175,7 +165,7 @@
       },
       "targets": [
         {
-          "expr": "count(wifi_ap_channel)",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\"})",
           "legendFormat": ""
         }
       ],
@@ -201,7 +191,7 @@
     },
     {
       "id": 5,
-      "title": "Bands",
+      "title": "Channels Used",
       "type": "stat",
       "gridPos": {
         "h": 3,
@@ -211,7 +201,7 @@
       },
       "targets": [
         {
-          "expr": "count(wifi_ap_count)",
+          "expr": "count(wifi_ap_channel)",
           "legendFormat": ""
         }
       ],
@@ -289,10 +279,10 @@
     {
       "collapsed": false,
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 3
+        "y": 3,
+        "w": 24,
+        "h": 1
       },
       "id": 100,
       "panels": [],
@@ -301,17 +291,81 @@
     },
     {
       "id": 10,
-      "title": "Signal Strength \u2014 Top 10",
+      "title": "Signal Strength \u2014 2.4 GHz",
       "type": "timeseries",
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 4
+        "y": 4,
+        "w": 12,
+        "h": 8
       },
       "targets": [
         {
-          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=~\"$band\"}))",
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\"}))",
+          "legendFormat": "{{ssid}} ({{bssid}})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 25,
+            "showPoints": "never",
+            "spanNulls": true,
+            "gradientMode": "opacity"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "min": -100,
+          "soft_max": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Signal Strength \u2014 5 GHz",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 12,
+        "h": 8
+      },
+      "targets": [
+        {
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\"}))",
           "legendFormat": "{{ssid}} ({{bssid}})"
         }
       ],
@@ -365,17 +419,52 @@
     },
     {
       "id": 11,
-      "title": "Frequency Distribution",
+      "title": "Freq Dist \u2014 2.4 GHz",
       "type": "bargauge",
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 4
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 5
       },
       "targets": [
         {
-          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz))",
+          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"2.4 GHz\"}))",
+          "legendFormat": "{{ssid}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "MHz"
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 11,
+      "title": "Freq Dist \u2014 5 GHz",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 12,
+        "y": 12,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "expr": "topk(20, avg by (ssid) (wifi_ap_frequency_mhz{band=\"5 GHz\"}))",
           "legendFormat": "{{ssid}}"
         }
       ],
@@ -403,10 +492,10 @@
       "title": "Devices by Band",
       "type": "bargauge",
       "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 4
+        "x": 0,
+        "y": 17,
+        "w": 24,
+        "h": 5
       },
       "targets": [
         {
@@ -444,10 +533,10 @@
     {
       "collapsed": false,
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 12
+        "y": 22,
+        "w": 24,
+        "h": 1
       },
       "id": 101,
       "panels": [],
@@ -456,17 +545,97 @@
     },
     {
       "id": 20,
-      "title": "All Detected APs",
+      "title": "Detected APs \u2014 2.4 GHz",
       "type": "table",
       "gridPos": {
-        "h": 12,
-        "w": 24,
         "x": 0,
-        "y": 13
+        "y": 23,
+        "w": 12,
+        "h": 12
       },
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm)",
+          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "legendFormat": "{{ssid}}",
+          "refId": "A"
+        }
+      ],
+      "transformations": [],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "displayMode": "color-background",
+            "filterable": true
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": -67
+              },
+              {
+                "color": "red",
+                "value": -80
+              }
+            ]
+          },
+          "unit": "dBm"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ssid"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "auto"
+              },
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "footer": {
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Value"
+          }
+        ]
+      }
+    },
+    {
+      "id": 20,
+      "title": "Detected APs \u2014 5 GHz",
+      "type": "table",
+      "gridPos": {
+        "x": 12,
+        "y": 23,
+        "w": 12,
+        "h": 12
+      },
+      "targets": [
+        {
+          "expr": "avg by (ssid, bssid, type) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
           "legendFormat": "{{ssid}}",
           "refId": "A"
         }
@@ -536,17 +705,52 @@
     },
     {
       "id": 21,
-      "title": "Signal per Channel",
+      "title": "Signal/Ch \u2014 2.4 GHz",
       "type": "bargauge",
       "gridPos": {
-        "h": 5,
-        "w": 12,
         "x": 0,
-        "y": 25
+        "y": 35,
+        "w": 12,
+        "h": 5
       },
       "targets": [
         {
-          "expr": "avg by (ssid) (wifi_ap_signal_dbm)",
+          "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "legendFormat": "{{ssid}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dBm",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      }
+    },
+    {
+      "id": 21,
+      "title": "Signal/Ch \u2014 5 GHz",
+      "type": "bargauge",
+      "gridPos": {
+        "x": 12,
+        "y": 35,
+        "w": 12,
+        "h": 5
+      },
+      "targets": [
+        {
+          "expr": "avg by (ssid) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
           "legendFormat": "{{ssid}}"
         }
       ],
