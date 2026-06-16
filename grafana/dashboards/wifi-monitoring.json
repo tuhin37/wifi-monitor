@@ -655,12 +655,52 @@
       "targets": [
         {
           "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": "{{freq}} MHz",
+          "legendFormat": "{{ssid}}",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 5 GHz",
-      "transformations": [],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value": {
+                "aggregation": "last (not null)"
+              },
+              "freq": {
+                "aggregation": "group by"
+              },
+              "ssid": {
+                "aggregation": "group by"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "ssid": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Signal (dBm)",
+              "freq": "Freq (MHz)"
+            },
+            "sortBy": [
+              {
+                "field": "freq"
+              }
+            ]
+          }
+        }
+      ],
       "type": "barchart"
     },
     {
@@ -717,12 +757,52 @@
       "targets": [
         {
           "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": "{{freq}} MHz",
+          "legendFormat": "{{ssid}}",
           "refId": "A"
         }
       ],
       "title": "Spectrum \u2014 2.4 GHz",
-      "transformations": [],
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {}
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value": {
+                "aggregation": "last (not null)"
+              },
+              "freq": {
+                "aggregation": "group by"
+              },
+              "ssid": {
+                "aggregation": "group by"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "ssid": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Signal (dBm)",
+              "freq": "Freq (MHz)"
+            },
+            "sortBy": [
+              {
+                "field": "freq"
+              }
+            ]
+          }
+        }
+      ],
       "type": "barchart"
     },
     {
@@ -1064,5 +1144,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 21
+  "version": 22
 }
