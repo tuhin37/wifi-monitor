@@ -199,7 +199,7 @@
           "refId": "A"
         }
       ],
-      "title": "Avg Signal (2.4)",
+      "title": "Avg Signal (2.4 GHz)",
       "type": "stat"
     },
     {
@@ -263,7 +263,7 @@
           "refId": "A"
         }
       ],
-      "title": "Avg Signal (5)",
+      "title": "Avg Signal (5 GHz)",
       "type": "stat"
     },
     {
@@ -410,11 +410,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": null
               }
             ]
           },
@@ -451,7 +447,7 @@
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "showUnfilled": true,
+        "showUnfilled": false,
         "sizing": "auto",
         "valueMode": "color"
       },
@@ -473,7 +469,7 @@
           "refId": "C"
         }
       ],
-      "title": "Devices by Band",
+      "title": "WiFi Clients",
       "type": "bargauge"
     },
     {
@@ -1146,5 +1142,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 32
+  "version": 33
 }
