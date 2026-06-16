@@ -695,6 +695,17 @@
           "options": {}
         },
         {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "freq"
+              }
+            ]
+          }
+        },
+        {
           "id": "organize",
           "options": {
             "excludeByName": {
@@ -804,6 +815,17 @@
         {
           "id": "labelsToFields",
           "options": {}
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "freq"
+              }
+            ]
+          }
         },
         {
           "id": "organize",
@@ -1162,5 +1184,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 11
+  "version": 12
 }
