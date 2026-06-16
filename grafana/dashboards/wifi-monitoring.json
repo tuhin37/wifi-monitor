@@ -510,10 +510,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 12,
-        "y": 11
+        "y": 12,
+        "w": 12,
+        "h": 8
       },
       "options": {
         "legend": {
@@ -575,10 +575,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
         "x": 0,
-        "y": 11
+        "y": 12,
+        "w": 12,
+        "h": 8
       },
       "options": {
         "legend": {
@@ -602,304 +602,92 @@
       "type": "timeseries"
     },
     {
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "barWidth": 0.8,
-            "groupWidth": 70,
-            "showValue": "never"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Freq (MHz)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "displayName",
-                "value": "Freq (MHz)"
-              },
-              {
-                "id": "custom.width",
-                "value": 90
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Signal (dBm)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "dBm"
-              },
-              {
-                "id": "min",
-                "value": -100
-              },
-              {
-                "id": "max",
-                "value": 0
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": -67
-                    },
-                    {
-                      "color": "red",
-                      "value": -80
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
+      "type": "volkovlabs-echarts-panel",
+      "title": "Spectrum \u2014 2.4 GHz",
       "gridPos": {
-        "h": 7,
+        "x": 0,
+        "y": 4,
         "w": 12,
-        "x": 12,
-        "y": 4
-      },
-      "options": {
-        "barWidth": 0.8,
-        "groupWidth": 70,
-        "legend": {
-          "displayMode": "hidden",
-          "showLegend": false
-        },
-        "orientation": "vertical",
-        "showValue": false,
-        "xTickLabelRotation": 45
+        "h": 8
       },
       "targets": [
         {
-          "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
+          "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
           "refId": "A"
         }
       ],
-      "title": "Spectrum \u2014 5 GHz",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {}
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "renderer": "canvas",
+        "map": "none",
+        "editorMode": "code",
+        "getOption": "\nconst points = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  points.push({\n    value: [freq, signal],\n    ssid,\n    bssid,\n    freq,\n    signal,\n    name: ssid,\n  });\n}\n\npoints.sort((a, b) => a.freq - b.freq || a.signal - b.signal || a.ssid.localeCompare(b.ssid));\n\nconst freqCounts = new Map();\nfor (const p of points) {\n  freqCounts.set(p.freq, (freqCounts.get(p.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: `${freq} MHz (${count})` }\n  }));\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    formatter: (params) => {\n      const d = params.data || {};\n      return [\n        `<b>${d.ssid || '(unknown)'}</b>`,\n        `BSSID: ${d.bssid || '-'}`,\n        `Frequency: ${d.freq} MHz`,\n        `Signal: ${Number(d.signal).toFixed(1)} dBm`,\n      ].join('<br/>');\n    }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: 2400,\n    max: 2500,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: -100,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  visualMap: {\n    show: false,\n    min: -90,\n    max: -35,\n    dimension: 1,\n    inRange: {\n      color: ['#d44a3a', '#f2cc0c', '#73bf69']\n    }\n  },\n  series: [\n    {\n      name: 'AP signal by frequency',\n      type: 'scatter',\n      data: points,\n      symbolSize: 14,\n      itemStyle: {\n        opacity: 0.9,\n        borderColor: '#ffffff',\n        borderWidth: 1\n      },\n      label: {\n        show: true,\n        formatter: (params) => params.data.ssid,\n        position: 'top',\n        fontSize: 10,\n        color: '#c7d0d9',\n        overflow: 'truncate',\n        width: 90\n      },\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.25 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    }\n  ]\n};\n",
+        "editor": {
+          "format": "auto"
         },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "Value": {
-                "aggregation": "last (not null)"
-              },
-              "freq": {
-                "aggregation": "group by"
-              },
-              "ssid": {
-                "aggregation": "group by"
-              }
-            }
-          }
+        "themeEditor": {
+          "name": "default",
+          "config": "{}"
         },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "ssid": true
-            },
-            "indexByName": {},
-            "renameByName": {
-              "Value": "Signal (dBm)",
-              "freq": "Freq (MHz)"
-            },
-            "sortBy": [
-              {
-                "field": "freq"
-              }
-            ]
-          }
+        "visualEditor": {
+          "code": "return {};",
+          "dataset": [],
+          "series": []
         }
-      ],
-      "type": "barchart"
+      },
+      "pluginVersion": "7.2.2"
     },
     {
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "barWidth": 0.8,
-            "groupWidth": 70,
-            "showValue": "never"
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Freq (MHz)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              },
-              {
-                "id": "displayName",
-                "value": "Freq (MHz)"
-              },
-              {
-                "id": "custom.width",
-                "value": 90
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Signal (dBm)"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "dBm"
-              },
-              {
-                "id": "min",
-                "value": -100
-              },
-              {
-                "id": "max",
-                "value": 0
-              },
-              {
-                "id": "color",
-                "value": {
-                  "mode": "thresholds"
-                }
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": -67
-                    },
-                    {
-                      "color": "red",
-                      "value": -80
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
+      "type": "volkovlabs-echarts-panel",
+      "title": "Spectrum \u2014 5 GHz",
       "gridPos": {
-        "h": 7,
+        "x": 12,
+        "y": 4,
         "w": 12,
-        "x": 0,
-        "y": 4
-      },
-      "options": {
-        "barWidth": 0.8,
-        "groupWidth": 70,
-        "legend": {
-          "displayMode": "hidden",
-          "showLegend": false
-        },
-        "orientation": "vertical",
-        "showValue": false,
-        "xTickLabelRotation": 45
+        "h": 8
       },
       "targets": [
         {
-          "expr": "avg by (ssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\"})",
-          "legendFormat": "{{ssid}}",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\"})",
+          "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
           "refId": "A"
         }
       ],
-      "title": "Spectrum \u2014 2.4 GHz",
-      "transformations": [
-        {
-          "id": "labelsToFields",
-          "options": {}
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "renderer": "canvas",
+        "map": "none",
+        "editorMode": "code",
+        "getOption": "\nconst points = [];\n\nfor (const frame of context.panel.data.series) {\n  const valueField = frame.fields.find((f) => f.type === 'number');\n  if (!valueField || !valueField.values || valueField.values.length === 0) {\n    continue;\n  }\n\n  const labels = valueField.labels || {};\n  const ssid = labels.ssid || '(unknown)';\n  const bssid = labels.bssid || '';\n  const freq = Number(labels.freq);\n  if (!Number.isFinite(freq)) {\n    continue;\n  }\n\n  let signal = null;\n  for (let i = valueField.values.length - 1; i >= 0; i--) {\n    const v = Number(valueField.values[i]);\n    if (Number.isFinite(v)) {\n      signal = v;\n      break;\n    }\n  }\n  if (!Number.isFinite(signal)) {\n    continue;\n  }\n\n  points.push({\n    value: [freq, signal],\n    ssid,\n    bssid,\n    freq,\n    signal,\n    name: ssid,\n  });\n}\n\npoints.sort((a, b) => a.freq - b.freq || a.signal - b.signal || a.ssid.localeCompare(b.ssid));\n\nconst freqCounts = new Map();\nfor (const p of points) {\n  freqCounts.set(p.freq, (freqCounts.get(p.freq) || 0) + 1);\n}\n\nconst freqLines = Array.from(freqCounts.entries())\n  .sort((a, b) => a[0] - b[0])\n  .map(([freq, count]) => ({\n    xAxis: freq,\n    label: { formatter: `${freq} MHz (${count})` }\n  }));\n\nreturn {\n  backgroundColor: 'transparent',\n  animation: false,\n  tooltip: {\n    trigger: 'item',\n    formatter: (params) => {\n      const d = params.data || {};\n      return [\n        `<b>${d.ssid || '(unknown)'}</b>`,\n        `BSSID: ${d.bssid || '-'}`,\n        `Frequency: ${d.freq} MHz`,\n        `Signal: ${Number(d.signal).toFixed(1)} dBm`,\n      ].join('<br/>');\n    }\n  },\n  grid: { left: 58, right: 24, top: 24, bottom: 58, containLabel: true },\n  xAxis: {\n    type: 'value',\n    name: 'Frequency (MHz)',\n    nameLocation: 'middle',\n    nameGap: 36,\n    min: 5150,\n    max: 5850,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Signal (dBm)',\n    min: -100,\n    max: 0,\n    axisLabel: { formatter: '{value}' },\n    splitLine: { show: true, lineStyle: { opacity: 0.25 } }\n  },\n  visualMap: {\n    show: false,\n    min: -90,\n    max: -35,\n    dimension: 1,\n    inRange: {\n      color: ['#d44a3a', '#f2cc0c', '#73bf69']\n    }\n  },\n  series: [\n    {\n      name: 'AP signal by frequency',\n      type: 'scatter',\n      data: points,\n      symbolSize: 14,\n      itemStyle: {\n        opacity: 0.9,\n        borderColor: '#ffffff',\n        borderWidth: 1\n      },\n      label: {\n        show: true,\n        formatter: (params) => params.data.ssid,\n        position: 'top',\n        fontSize: 10,\n        color: '#c7d0d9',\n        overflow: 'truncate',\n        width: 90\n      },\n      markLine: {\n        symbol: 'none',\n        silent: true,\n        lineStyle: { color: '#8ab8ff', type: 'dashed', opacity: 0.25 },\n        label: { color: '#8ab8ff', fontSize: 9, position: 'insideEndTop' },\n        data: freqLines\n      }\n    }\n  ]\n};\n",
+        "editor": {
+          "format": "auto"
         },
-        {
-          "id": "groupBy",
-          "options": {
-            "fields": {
-              "Value": {
-                "aggregation": "last (not null)"
-              },
-              "freq": {
-                "aggregation": "group by"
-              },
-              "ssid": {
-                "aggregation": "group by"
-              }
-            }
-          }
+        "themeEditor": {
+          "name": "default",
+          "config": "{}"
         },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "ssid": true
-            },
-            "indexByName": {},
-            "renameByName": {
-              "Value": "Signal (dBm)",
-              "freq": "Freq (MHz)"
-            },
-            "sortBy": [
-              {
-                "field": "freq"
-              }
-            ]
-          }
+        "visualEditor": {
+          "code": "return {};",
+          "dataset": [],
+          "series": []
         }
-      ],
-      "type": "barchart"
+      },
+      "pluginVersion": "7.2.2"
     },
     {
       "collapsed": false,
       "gridPos": {
-        "h": 1,
-        "w": 24,
         "x": 0,
-        "y": 19
+        "y": 20,
+        "w": 24,
+        "h": 1
       },
       "id": 101,
       "panels": [],
@@ -959,10 +747,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
         "x": 0,
-        "y": 20
+        "y": 21,
+        "w": 12,
+        "h": 12
       },
       "id": 20,
       "options": {
@@ -1039,10 +827,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
         "x": 12,
-        "y": 20
+        "y": 21,
+        "w": 12,
+        "h": 12
       },
       "id": 104,
       "options": {
@@ -1091,10 +879,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
         "x": 0,
-        "y": 32
+        "y": 33,
+        "w": 12,
+        "h": 9
       },
       "id": 21,
       "options": {
@@ -1159,10 +947,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 12,
         "x": 12,
-        "y": 32
+        "y": 33,
+        "w": 12,
+        "h": 9
       },
       "id": 105,
       "options": {
@@ -1232,5 +1020,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 22
+  "version": 23
 }
