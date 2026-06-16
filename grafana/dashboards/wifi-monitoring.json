@@ -604,36 +604,80 @@
     {
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "custom": {
             "barWidth": 0.8,
             "groupWidth": 70,
             "showValue": "never"
-          },
-          "max": 0,
-          "min": -100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Freq (MHz)"
+            },
+            "properties": [
               {
-                "color": "green",
-                "value": null
+                "id": "unit",
+                "value": "none"
               },
               {
-                "color": "yellow",
-                "value": -67
+                "id": "displayName",
+                "value": "Freq (MHz)"
               },
               {
-                "color": "red",
-                "value": -80
+                "id": "custom.width",
+                "value": 90
               }
             ]
           },
-          "unit": "dBm"
-        },
-        "overrides": []
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Signal (dBm)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dBm"
+              },
+              {
+                "id": "min",
+                "value": -100
+              },
+              {
+                "id": "max",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": -67
+                    },
+                    {
+                      "color": "red",
+                      "value": -80
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
@@ -706,36 +750,80 @@
     {
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "custom": {
             "barWidth": 0.8,
             "groupWidth": 70,
             "showValue": "never"
-          },
-          "max": 0,
-          "min": -100,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Freq (MHz)"
+            },
+            "properties": [
               {
-                "color": "green",
-                "value": null
+                "id": "unit",
+                "value": "none"
               },
               {
-                "color": "yellow",
-                "value": -67
+                "id": "displayName",
+                "value": "Freq (MHz)"
               },
               {
-                "color": "red",
-                "value": -80
+                "id": "custom.width",
+                "value": 90
               }
             ]
           },
-          "unit": "dBm"
-        },
-        "overrides": []
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Signal (dBm)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dBm"
+              },
+              {
+                "id": "min",
+                "value": -100
+              },
+              {
+                "id": "max",
+                "value": 0
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": -67
+                    },
+                    {
+                      "color": "red",
+                      "value": -80
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 7,
