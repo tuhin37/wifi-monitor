@@ -21,11 +21,7 @@ jobs:
 
     env:
       IMAGE_REPOSITORY: fidays/wifi-monitor-exporter
-      BEAST_HOST: ${{ secrets.BEAST_HOST || '100.77.113.19' }}
-      BEAST_USER: ${{ secrets.BEAST_SSH_USER || 'drag' }}
       BEAST_STACK_DIR: ${{ secrets.BEAST_STACK_DIR || '/opt/stacks/wifi-mon' }}
-      BEAST_SSH_PORT: ${{ secrets.BEAST_SSH_PORT || '22' }}
-      BEAST_SSH_PASSWORD: ${{ secrets.BEAST_SSH_PASSWORD }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
@@ -65,34 +61,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          missing=0
-          for name in DOCKERHUB_USERNAME DOCKERHUB_TOKEN BEAST_SSH_PASSWORD; do
+          for name in DOCKERHUB_USERNAME DOCKERHUB_TOKEN; do
             if [[ -z "${!name:-}" ]]; then
               echo "Missing required GitHub secret: ${name}" >&2
-              missing=1
+              exit 1
             fi
           done
-          exit "${missing}"
-
-      - name: Ensure password SSH tooling is available
-        shell: bash
-        run: |
-          set -euo pipefail
-          if command -v sshpass >/dev/null 2>&1; then
-            sshpass -V | head -n 1
-            exit 0
-          fi
-
-          if command -v apt-get >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
-            sudo apt-get update
-            sudo apt-get install -y sshpass
-          elif command -v apt-get >/dev/null 2>&1 && [[ "$(id -u)" == "0" ]]; then
-            apt-get update
-            apt-get install -y sshpass
-          else
-            echo "sshpass is required because beast uses username/password SSH, but sshpass is not installed and this runner cannot install it automatically." >&2
-            exit 1
-          fi
+          echo "All required secrets present"
 
       - name: Log in to Docker Hub
         shell: bash
@@ -132,43 +107,26 @@ jobs:
           git tag -a "${{ steps.version.outputs.next_tag }}" -m "Release ${{ steps.version.outputs.next_tag }}"
           git push origin "${{ steps.version.outputs.next_tag }}"
 
-      - name: Configure SSH to beast
+      - name: Deploy new image on beast (local runner)
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          ssh-keyscan -p "${BEAST_SSH_PORT}" -H "${BEAST_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
-          cat > ~/.ssh/beast_config <<EOF
-          Host beast-wifi-monitor
-            HostName ${BEAST_HOST}
-            Port ${BEAST_SSH_PORT}
-            User ${BEAST_USER}
-            PreferredAuthentications password
-            PubkeyAuthentication no
-            StrictHostKeyChecking yes
-          EOF
-          chmod 600 ~/.ssh/beast_config
 
-      - name: Stop stack, pin new image tag, and restart on beast
-        shell: bash
-        run: |
-          set -euo pipefail
-          remote_script=$(mktemp)
-          cat > "${remote_script}" <<'REMOTE'
-          set -euo pipefail
           cd "${BEAST_STACK_DIR}"
 
           test -f compose.yaml
           docker compose -f compose.yaml stop exporter
 
           cp compose.yaml "compose.yaml.bak.$(date +%Y%m%d-%H%M%S)"
+
+          # Pin the new image tag
           sed -i -E "s#image: fidays/wifi-monitor-exporter:.*#image: fidays/wifi-monitor-exporter:${NEW_TAG}#" compose.yaml
           grep -q "image: fidays/wifi-monitor-exporter:${NEW_TAG}" compose.yaml
 
           docker compose -f compose.yaml pull exporter
           docker compose -f compose.yaml up -d exporter
 
+          # Wait for the exporter to start serving metrics
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:8501/metrics | grep -q '^wifi_scanner_up '; then
               break
@@ -178,10 +136,8 @@ jobs:
 
           docker ps --filter name=wifimon-exporter --format '{{.Names}} {{.Image}} {{.Status}}'
           curl -fsS http://127.0.0.1:8501/metrics | grep '^wifi_scanner_up '
-          REMOTE
-
-          SSHPASS="${BEAST_SSH_PASSWORD}" sshpass -e ssh -F ~/.ssh/beast_config beast-wifi-monitor \
-            "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
+        env:
+          NEW_TAG: ${{ steps.version.outputs.next_tag }}
 
       - name: Release summary
         shell: bash
@@ -191,5 +147,5 @@ jobs:
           Previous tag: ${{ steps.version.outputs.latest_tag }}
           New tag:      ${{ steps.version.outputs.next_tag }}
           Image:        ${IMAGE_REPOSITORY}:${{ steps.version.outputs.next_tag }}
-          Beast:        ${BEAST_USER}@${BEAST_HOST}:${BEAST_STACK_DIR}
+          Beast stack:  ${BEAST_STACK_DIR}
           EOF
