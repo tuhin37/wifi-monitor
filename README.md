@@ -92,12 +92,6 @@ Required GitHub Actions secrets:
 ```text
 DOCKERHUB_USERNAME      Docker Hub username, normally fidays
 DOCKERHUB_TOKEN         Docker Hub access token/password
-BEAST_SSH_KEY           Private SSH key for beast deploy access
-```
-
-Alternatively, use password auth instead of `BEAST_SSH_KEY`:
-
-```text
 BEAST_SSH_PASSWORD      SSH password for BEAST_SSH_USER
 ```
 
@@ -110,7 +104,7 @@ BEAST_SSH_PORT          default: 22
 BEAST_STACK_DIR         default: /opt/stacks/wifi-mon
 ```
 
-If password auth is used, the self-hosted runner must have `sshpass` installed. SSH-key auth is preferred.
+Beast is username/password based. The workflow disables public-key auth for the deploy SSH command and uses `sshpass`. If `sshpass` is missing on the self-hosted runner, the workflow attempts to install it with `apt-get`/`sudo`; otherwise it fails with a clear message.
 
 ## Development workflow: change, build locally, test, promote
 

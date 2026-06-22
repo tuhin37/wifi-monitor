@@ -25,7 +25,6 @@ jobs:
       BEAST_USER: ${{ secrets.BEAST_SSH_USER || 'drag' }}
       BEAST_STACK_DIR: ${{ secrets.BEAST_STACK_DIR || '/opt/stacks/wifi-mon' }}
       BEAST_SSH_PORT: ${{ secrets.BEAST_SSH_PORT || '22' }}
-      BEAST_SSH_KEY: ${{ secrets.BEAST_SSH_KEY }}
       BEAST_SSH_PASSWORD: ${{ secrets.BEAST_SSH_PASSWORD }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -67,17 +66,33 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for name in DOCKERHUB_USERNAME DOCKERHUB_TOKEN; do
+          for name in DOCKERHUB_USERNAME DOCKERHUB_TOKEN BEAST_SSH_PASSWORD; do
             if [[ -z "${!name:-}" ]]; then
               echo "Missing required GitHub secret: ${name}" >&2
               missing=1
             fi
           done
-          if [[ -z "${BEAST_SSH_KEY:-}" && -z "${BEAST_SSH_PASSWORD:-}" ]]; then
-            echo "Missing one of required GitHub secrets: BEAST_SSH_KEY or BEAST_SSH_PASSWORD" >&2
-            missing=1
-          fi
           exit "${missing}"
+
+      - name: Ensure password SSH tooling is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v sshpass >/dev/null 2>&1; then
+            sshpass -V | head -n 1
+            exit 0
+          fi
+
+          if command -v apt-get >/dev/null 2>&1 && command -v sudo >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y sshpass
+          elif command -v apt-get >/dev/null 2>&1 && [[ "$(id -u)" == "0" ]]; then
+            apt-get update
+            apt-get install -y sshpass
+          else
+            echo "sshpass is required because beast uses username/password SSH, but sshpass is not installed and this runner cannot install it automatically." >&2
+            exit 1
+          fi
 
       - name: Log in to Docker Hub
         shell: bash
@@ -124,33 +139,15 @@ jobs:
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           ssh-keyscan -p "${BEAST_SSH_PORT}" -H "${BEAST_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
-
-          if [[ -n "${BEAST_SSH_KEY:-}" ]]; then
-            printf '%s\n' "${BEAST_SSH_KEY}" > ~/.ssh/beast_deploy_key
-            chmod 600 ~/.ssh/beast_deploy_key
-            cat > ~/.ssh/beast_config <<EOF
+          cat > ~/.ssh/beast_config <<EOF
           Host beast-wifi-monitor
             HostName ${BEAST_HOST}
             Port ${BEAST_SSH_PORT}
             User ${BEAST_USER}
-            IdentityFile ~/.ssh/beast_deploy_key
-            IdentitiesOnly yes
+            PreferredAuthentications password
+            PubkeyAuthentication no
             StrictHostKeyChecking yes
           EOF
-          else
-            if ! command -v sshpass >/dev/null 2>&1; then
-              echo "BEAST_SSH_PASSWORD is set, but sshpass is not installed on this self-hosted runner." >&2
-              echo "Install sshpass on the runner, or configure BEAST_SSH_KEY instead." >&2
-              exit 1
-            fi
-            cat > ~/.ssh/beast_config <<EOF
-          Host beast-wifi-monitor
-            HostName ${BEAST_HOST}
-            Port ${BEAST_SSH_PORT}
-            User ${BEAST_USER}
-            StrictHostKeyChecking yes
-          EOF
-          fi
           chmod 600 ~/.ssh/beast_config
 
       - name: Stop stack, pin new image tag, and restart on beast
@@ -183,13 +180,8 @@ jobs:
           curl -fsS http://127.0.0.1:8501/metrics | grep '^wifi_scanner_up '
           REMOTE
 
-          if [[ -n "${BEAST_SSH_KEY:-}" ]]; then
-            ssh -F ~/.ssh/beast_config beast-wifi-monitor \
-              "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
-          else
-            SSHPASS="${BEAST_SSH_PASSWORD}" sshpass -e ssh -F ~/.ssh/beast_config beast-wifi-monitor \
-              "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
-          fi
+          SSHPASS="${BEAST_SSH_PASSWORD}" sshpass -e ssh -F ~/.ssh/beast_config beast-wifi-monitor \
+            "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
 
       - name: Release summary
         shell: bash
