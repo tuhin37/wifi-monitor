@@ -19,15 +19,15 @@ fidays/wifi-monitor-exporter:latest
 Current production topology:
 
 ```text
-beast / 10.0.0.25
+beast
   wifimon-exporter
     image: fidays/wifi-monitor-exporter:latest
     host network + privileged
-    metrics: http://10.0.0.25:8501/metrics
+    metrics: http://beast:8501/metrics
     data: /opt/stacks/wifi-mon/data -> /data
 
-neutron / 10.0.0.47
-  Prometheus scrape job: wifi-monitor -> 10.0.0.25:8501
+neutron
+  Prometheus scrape job: wifi-monitor -> beast:8501
   Grafana dashboard uid: wifi-monitor
 ```
 
@@ -84,7 +84,7 @@ The workflow runs on a self-hosted GitHub Actions runner and does the full produ
    - `fidays/wifi-monitor-exporter:vX.Y.Z`
    - `fidays/wifi-monitor-exporter:latest`
 5. Creates and pushes the matching Git tag.
-6. SSHes to beast over NetBird (`100.77.113.19` by default).
+6. SSHes to beast to update the stack.
 7. Stops the WiFi exporter stack, updates `/opt/stacks/wifi-mon/compose.yaml` with the new immutable image tag, pulls it, restarts the stack, and verifies metrics.
 
 Required GitHub Actions secrets:
@@ -98,7 +98,7 @@ BEAST_SSH_PASSWORD      SSH password for BEAST_SSH_USER
 Optional secrets override the defaults:
 
 ```text
-BEAST_HOST              default: 100.77.113.19
+BEAST_HOST              beast hostname or IP
 BEAST_SSH_USER          default: drag
 BEAST_SSH_PORT          default: 22
 BEAST_STACK_DIR         default: /opt/stacks/wifi-mon
@@ -351,7 +351,7 @@ docker exec wifimon-exporter iw dev wlp5s0 scan 2>&1 | grep -c '^BSS '
 Check neutron Prometheus scrape:
 
 ```bash
-curl -fsS http://10.0.0.47:9090/api/v1/targets \
+curl -fsS http://neutron:9090/api/v1/targets \
   | python3 -m json.tool \
   | grep -A8 'wifi-monitor'
 ```

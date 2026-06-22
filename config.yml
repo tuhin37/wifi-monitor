@@ -7,6 +7,6 @@ scanner:
   interface: wlan1
   kismet_url: http://127.0.0.1:2501
   kismet_username: admin
-  kismet_password: admin
+  kismet_password: "<changeme>"
   poll_interval: 15
 

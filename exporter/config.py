@@ -13,7 +13,7 @@ class ScannerConfig(BaseModel):
     interface: str = "wlan1"          # monitor-mode interface
     kismet_url: str = "http://127.0.0.1:2501"
     kismet_username: str = "admin"
-    kismet_password: str = "admin"
+    kismet_password: str = "<changeme>"
     poll_interval: int = 15
 
 
