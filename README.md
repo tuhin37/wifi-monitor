@@ -70,9 +70,51 @@ Expected image:
 fidays/wifi-monitor-exporter:latest
 ```
 
+## Automated release and production deploy
+
+Merging a pull request into `main` triggers `.github/workflows/release-and-deploy.yml`.
+
+The workflow runs on a self-hosted GitHub Actions runner and does the full production release:
+
+1. Checks out the updated `main` branch.
+2. Finds the latest semver Git tag matching `vX.Y.Z` and increments the patch version.
+   - If no semver tag exists, the first release is `v0.0.1`.
+3. Builds the exporter image from `exporter/Dockerfile.dev`.
+4. Pushes both tags to Docker Hub:
+   - `fidays/wifi-monitor-exporter:vX.Y.Z`
+   - `fidays/wifi-monitor-exporter:latest`
+5. Creates and pushes the matching Git tag.
+6. SSHes to beast over NetBird (`100.77.113.19` by default).
+7. Stops the WiFi exporter stack, updates `/opt/stacks/wifi-mon/compose.yaml` with the new immutable image tag, pulls it, restarts the stack, and verifies metrics.
+
+Required GitHub Actions secrets:
+
+```text
+DOCKERHUB_USERNAME      Docker Hub username, normally fidays
+DOCKERHUB_TOKEN         Docker Hub access token/password
+BEAST_SSH_KEY           Private SSH key for beast deploy access
+```
+
+Alternatively, use password auth instead of `BEAST_SSH_KEY`:
+
+```text
+BEAST_SSH_PASSWORD      SSH password for BEAST_SSH_USER
+```
+
+Optional secrets override the defaults:
+
+```text
+BEAST_HOST              default: 100.77.113.19
+BEAST_SSH_USER          default: drag
+BEAST_SSH_PORT          default: 22
+BEAST_STACK_DIR         default: /opt/stacks/wifi-mon
+```
+
+If password auth is used, the self-hosted runner must have `sshpass` installed. SSH-key auth is preferred.
+
 ## Development workflow: change, build locally, test, promote
 
-Use this when changing exporter code.
+Use this when changing exporter code manually outside the automated release path.
 
 ### 1. Edit the repo
 
@@ -153,11 +195,13 @@ Only commit source/config/docs. Do not commit `data/`, SQLite files, or local `.
 
 ### 5. Promote a tested local image with an incremental tag
 
-Pick the next incremental tag. The simplest convention is numeric release tags:
+Manual promotion should use the same semver convention as the automated pipeline:
 
 ```text
-v1, v2, v3, ...
+vX.Y.Z
 ```
+
+For normal patch releases, increment the last component, for example `v0.0.7` -> `v0.0.8`.
 
 Find existing tags in Docker Hub:
 
@@ -169,7 +213,7 @@ docker pull fidays/wifi-monitor-exporter:latest
 Set the next tag:
 
 ```bash
-export TAG=v2
+export TAG=v0.0.8
 ```
 
 Tag the tested local image:
@@ -212,7 +256,7 @@ docker compose -f compose.yaml up -d exporter
 If you want production pinned to a specific incremental tag instead of `latest`, edit `compose.yaml`:
 
 ```yaml
-image: fidays/wifi-monitor-exporter:v2
+image: fidays/wifi-monitor-exporter:v0.0.8
 ```
 
 Then deploy:

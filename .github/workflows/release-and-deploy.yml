@@ -1,0 +1,203 @@
+name: Release and deploy WiFi Monitor
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+concurrency:
+  group: wifi-monitor-release-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release-and-deploy:
+    name: Build, push, and deploy
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+
+    env:
+      IMAGE_REPOSITORY: fidays/wifi-monitor-exporter
+      BEAST_HOST: ${{ secrets.BEAST_HOST || '100.77.113.19' }}
+      BEAST_USER: ${{ secrets.BEAST_SSH_USER || 'drag' }}
+      BEAST_STACK_DIR: ${{ secrets.BEAST_STACK_DIR || '/opt/stacks/wifi-mon' }}
+      BEAST_SSH_PORT: ${{ secrets.BEAST_SSH_PORT || '22' }}
+      BEAST_SSH_KEY: ${{ secrets.BEAST_SSH_KEY }}
+      BEAST_SSH_PASSWORD: ${{ secrets.BEAST_SSH_PASSWORD }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Compute next patch tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          latest_tag="$({ git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1; } || true)"
+          if [[ -z "${latest_tag}" ]]; then
+            next_tag="v0.0.1"
+          elif [[ "${latest_tag}" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            major="${BASH_REMATCH[1]}"
+            minor="${BASH_REMATCH[2]}"
+            patch="${BASH_REMATCH[3]}"
+            next_tag="v${major}.${minor}.$((patch + 1))"
+          else
+            echo "Latest tag '${latest_tag}' is not valid vX.Y.Z semver" >&2
+            exit 1
+          fi
+
+          echo "latest_tag=${latest_tag:-none}" >> "$GITHUB_OUTPUT"
+          echo "next_tag=${next_tag}" >> "$GITHUB_OUTPUT"
+          echo "Next release tag: ${next_tag}"
+
+      - name: Validate required secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in DOCKERHUB_USERNAME DOCKERHUB_TOKEN; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "Missing required GitHub secret: ${name}" >&2
+              missing=1
+            fi
+          done
+          if [[ -z "${BEAST_SSH_KEY:-}" && -z "${BEAST_SSH_PASSWORD:-}" ]]; then
+            echo "Missing one of required GitHub secrets: BEAST_SSH_KEY or BEAST_SSH_PASSWORD" >&2
+            missing=1
+          fi
+          exit "${missing}"
+
+      - name: Log in to Docker Hub
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "${DOCKERHUB_TOKEN}" | docker login --username "${DOCKERHUB_USERNAME}" --password-stdin
+
+      - name: Build exporter image from main
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build \
+            -f exporter/Dockerfile.dev \
+            -t "${IMAGE_REPOSITORY}:${{ steps.version.outputs.next_tag }}" \
+            -t "${IMAGE_REPOSITORY}:latest" \
+            exporter
+
+      - name: Smoke test built image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker image inspect "${IMAGE_REPOSITORY}:${{ steps.version.outputs.next_tag }}" >/dev/null
+
+      - name: Push exporter image to Docker Hub
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "${IMAGE_REPOSITORY}:${{ steps.version.outputs.next_tag }}"
+          docker push "${IMAGE_REPOSITORY}:latest"
+
+      - name: Create and push git release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.next_tag }}" -m "Release ${{ steps.version.outputs.next_tag }}"
+          git push origin "${{ steps.version.outputs.next_tag }}"
+
+      - name: Configure SSH to beast
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -p "${BEAST_SSH_PORT}" -H "${BEAST_HOST}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          if [[ -n "${BEAST_SSH_KEY:-}" ]]; then
+            printf '%s\n' "${BEAST_SSH_KEY}" > ~/.ssh/beast_deploy_key
+            chmod 600 ~/.ssh/beast_deploy_key
+            cat > ~/.ssh/beast_config <<EOF
+          Host beast-wifi-monitor
+            HostName ${BEAST_HOST}
+            Port ${BEAST_SSH_PORT}
+            User ${BEAST_USER}
+            IdentityFile ~/.ssh/beast_deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+          else
+            if ! command -v sshpass >/dev/null 2>&1; then
+              echo "BEAST_SSH_PASSWORD is set, but sshpass is not installed on this self-hosted runner." >&2
+              echo "Install sshpass on the runner, or configure BEAST_SSH_KEY instead." >&2
+              exit 1
+            fi
+            cat > ~/.ssh/beast_config <<EOF
+          Host beast-wifi-monitor
+            HostName ${BEAST_HOST}
+            Port ${BEAST_SSH_PORT}
+            User ${BEAST_USER}
+            StrictHostKeyChecking yes
+          EOF
+          fi
+          chmod 600 ~/.ssh/beast_config
+
+      - name: Stop stack, pin new image tag, and restart on beast
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote_script=$(mktemp)
+          cat > "${remote_script}" <<'REMOTE'
+          set -euo pipefail
+          cd "${BEAST_STACK_DIR}"
+
+          test -f compose.yaml
+          docker compose -f compose.yaml stop exporter
+
+          cp compose.yaml "compose.yaml.bak.$(date +%Y%m%d-%H%M%S)"
+          sed -i -E "s#image: fidays/wifi-monitor-exporter:.*#image: fidays/wifi-monitor-exporter:${NEW_TAG}#" compose.yaml
+          grep -q "image: fidays/wifi-monitor-exporter:${NEW_TAG}" compose.yaml
+
+          docker compose -f compose.yaml pull exporter
+          docker compose -f compose.yaml up -d exporter
+
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8501/metrics | grep -q '^wifi_scanner_up '; then
+              break
+            fi
+            sleep 2
+          done
+
+          docker ps --filter name=wifimon-exporter --format '{{.Names}} {{.Image}} {{.Status}}'
+          curl -fsS http://127.0.0.1:8501/metrics | grep '^wifi_scanner_up '
+          REMOTE
+
+          if [[ -n "${BEAST_SSH_KEY:-}" ]]; then
+            ssh -F ~/.ssh/beast_config beast-wifi-monitor \
+              "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
+          else
+            SSHPASS="${BEAST_SSH_PASSWORD}" sshpass -e ssh -F ~/.ssh/beast_config beast-wifi-monitor \
+              "BEAST_STACK_DIR='${BEAST_STACK_DIR}' NEW_TAG='${{ steps.version.outputs.next_tag }}' bash -s" < "${remote_script}"
+          fi
+
+      - name: Release summary
+        shell: bash
+        run: |
+          cat <<EOF
+          Released and deployed WiFi Monitor
+          Previous tag: ${{ steps.version.outputs.latest_tag }}
+          New tag:      ${{ steps.version.outputs.next_tag }}
+          Image:        ${IMAGE_REPOSITORY}:${{ steps.version.outputs.next_tag }}
+          Beast:        ${BEAST_USER}@${BEAST_HOST}:${BEAST_STACK_DIR}
+          EOF
