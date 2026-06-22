@@ -1,0 +1,16 @@
+name: wifi-mon
+services:
+  exporter:
+    image: fidays/wifi-monitor-exporter:latest
+    container_name: wifimon-exporter
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    environment:
+      EXPORTER_PORT: "8501"
+      DATA_DIR: /data
+      SCANNER_BACKEND: iw
+      SCANNER_INTERFACE: wlp5s0
+      POLL_INTERVAL: "15"
+    volumes:
+      - ./data:/data

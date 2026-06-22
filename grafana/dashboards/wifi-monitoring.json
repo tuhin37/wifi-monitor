@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 38,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -72,13 +72,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "2.4 GHz APs",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -131,13 +139,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "5 GHz APs",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -151,7 +167,7 @@
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
                 "color": "yellow",
@@ -194,13 +210,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Avg Signal (2.4 GHz)",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -208,16 +232,17 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "red",
-                "value": null
+                "value": 0
               },
               {
-                "color": "yellow",
+                "color": "blue",
                 "value": -80
               },
               {
@@ -226,8 +251,7 @@
               }
             ]
           },
-          "unit": "dBm",
-          "decimals": 1
+          "unit": "dBm"
         },
         "overrides": []
       },
@@ -258,13 +282,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg(wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Avg Signal (5 GHz)",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -317,13 +349,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_channel{ssid=~\"${ssid:regex}\"})",
+          "expr": "count(count by (freq) (wifi_ap_signal_dbm{band=~\"$band\", ssid_key=~\"${ssid:regex}\"}))",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Channels Used",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -392,11 +432,19 @@
         {
           "expr": "wifi_scanner_up",
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Scanner",
-      "type": "stat"
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -410,13 +458,29 @@
             "steps": [
               {
                 "color": "green",
-                "value": null
+                "value": 0
               }
             ]
           },
           "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "5 GHz"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 3,
@@ -454,35 +518,51 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "2.4 GHz",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         },
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "5 GHz",
-          "refId": "B"
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         },
         {
-          "expr": "count(wifi_ap_signal_dbm{band=\"6 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "count(wifi_ap_signal_dbm{band=\"6 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "6 GHz",
-          "refId": "C"
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "WiFi Clients",
-      "type": "bargauge"
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bfp80exy38jk0c"
+        "uid": "bf5z50o09huyoc"
       },
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
+        "h": 13,
         "w": 24,
         "x": 0,
         "y": 3
@@ -521,9 +601,13 @@
       "pluginVersion": "7.2.2",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Spectrum \u2014 2.4 GHz",
@@ -533,17 +617,17 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bfp80exy38jk0c"
+        "uid": "bf5z50o09huyoc"
       },
       "fieldConfig": {
         "defaults": {},
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 16
       },
       "id": 109,
       "options": {
@@ -579,9 +663,13 @@
       "pluginVersion": "7.2.2",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "{{freq}} MHz \u00b7 {{ssid}}",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Spectrum \u2014 5 GHz",
@@ -591,7 +679,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bfp80exy38jk0c"
+        "uid": "bf5z50o09huyoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -633,8 +721,8 @@
             }
           },
           "mappings": [],
-          "max": 0,
-          "min": -100,
+          "max": -30,
+          "min": -85,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -660,7 +748,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 28
       },
       "id": 107,
       "options": {
@@ -683,9 +771,13 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"}))",
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"}))",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Signal Strength \u2014 2.4 GHz",
@@ -695,7 +787,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "bfp80exy38jk0c"
+        "uid": "bf5z50o09huyoc"
       },
       "fieldConfig": {
         "defaults": {
@@ -737,8 +829,8 @@
             }
           },
           "mappings": [],
-          "max": 0,
-          "min": -100,
+          "max": -35,
+          "min": -85,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -764,7 +856,7 @@
         "h": 11,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 39
       },
       "id": 106,
       "options": {
@@ -787,9 +879,13 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\", ssid=~\"${ssid:regex}\"}))",
+          "expr": "topk(10, avg by (ssid, bssid, type) (wifi_ap_signal_dbm{type=~\".*AP.*\", band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"}))",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Signal Strength \u2014 5 GHz",
@@ -802,7 +898,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 50
       },
       "id": 101,
       "panels": [],
@@ -865,7 +961,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 51
       },
       "id": 20,
       "options": {
@@ -881,13 +977,21 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Detected APs \u2014 2.4 GHz",
-      "type": "table"
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
@@ -945,7 +1049,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 46
+        "y": 51
       },
       "id": 104,
       "options": {
@@ -961,35 +1065,57 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "avg by (ssid, bssid, type, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"})",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          }
         }
       ],
       "title": "Detected APs \u2014 5 GHz",
-      "type": "table"
+      "type": "table",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "red",
+                "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": -70
+              },
+              {
+                "color": "yellow",
+                "value": -60
+              },
+              {
+                "color": "green",
+                "value": -50
+              },
+              {
+                "color": "blue",
+                "value": -30
               }
             ]
           },
-          "unit": "dBm"
+          "unit": "dBm",
+          "min": -100,
+          "max": 0
         },
         "overrides": []
       },
@@ -997,7 +1123,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 58
+        "y": 63
       },
       "id": 21,
       "options": {
@@ -1029,35 +1155,59 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "sort_desc(avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"2.4 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"}))",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          },
+          "instant": true,
+          "range": false
         }
       ],
-      "title": "Signal/Ch \u2014 2.4 GHz",
-      "type": "bargauge"
+      "title": "Signal Strength (2.4GHz)",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     },
     {
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": 0
+                "color": "red",
+                "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": -70
+              },
+              {
+                "color": "yellow",
+                "value": -60
+              },
+              {
+                "color": "green",
+                "value": -50
+              },
+              {
+                "color": "blue",
+                "value": -30
               }
             ]
           },
-          "unit": "dBm"
+          "unit": "dBm",
+          "min": -100,
+          "max": 0
         },
         "overrides": []
       },
@@ -1065,7 +1215,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 58
+        "y": 63
       },
       "id": 105,
       "options": {
@@ -1097,13 +1247,23 @@
       "pluginVersion": "12.2.1",
       "targets": [
         {
-          "expr": "avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", ssid=~\"${ssid:regex}\"})",
+          "expr": "sort_desc(avg by (ssid, bssid, freq) (wifi_ap_signal_dbm{band=\"5 GHz\", band=~\"$band\", ssid_key=~\"${ssid:regex}\"}))",
           "legendFormat": "{{ssid}} ({{bssid}})",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "bf5z50o09huyoc"
+          },
+          "instant": true,
+          "range": false
         }
       ],
-      "title": "Signal/Ch \u2014 5 GHz",
-      "type": "bargauge"
+      "title": "Signal Strength (5GHz)",
+      "type": "bargauge",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "bf5z50o09huyoc"
+      }
     }
   ],
   "preload": false,
@@ -1111,26 +1271,66 @@
   "schemaVersion": 42,
   "tags": [
     "wifi",
-    "monitoring"
+    "monitoring",
+    "network"
   ],
   "templating": {
     "list": [
       {
-        "definition": "label_values(wifi_ap_signal_dbm, ssid)",
-        "includeAll": true,
-        "multi": true,
-        "name": "ssid",
-        "query": "label_values(wifi_ap_signal_dbm, ssid)",
-        "refresh": 2,
-        "sort": 3,
-        "type": "query",
-        "label": "SSID",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Band",
+        "multi": false,
+        "name": "band",
+        "options": [
+          {
+            "selected": false,
+            "text": "2.4GHz",
+            "value": "2.4 GHz"
+          },
+          {
+            "selected": false,
+            "text": "5GHz",
+            "value": "5 GHz"
+          },
+          {
+            "selected": true,
+            "text": "All",
+            "value": ".*"
+          }
+        ],
+        "query": "2.4GHz : 2.4 GHz, 5GHz : 5 GHz, All : .*",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
         "allValue": ".*",
         "current": {
           "selected": true,
           "text": "All",
           "value": "$__all"
-        }
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "bf5z50o09huyoc"
+        },
+        "definition": "query_result(count by (ssid, ssid_key) (wifi_ap_signal_dbm{band=~\"$band\"}))",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Access Point",
+        "multi": true,
+        "name": "ssid",
+        "query": "query_result(count by (ssid, ssid_key) (wifi_ap_signal_dbm{band=~\"$band\"}))",
+        "refresh": 2,
+        "regex": "/ssid=\"(?<text>[^\"]+)\".*ssid_key=\"(?<value>[^\"]+)\"/",
+        "sort": 3,
+        "type": "query"
       }
     ]
   },
@@ -1142,5 +1342,5 @@
   "timezone": "browser",
   "title": "WiFi Monitor",
   "uid": "wifi-monitor",
-  "version": 33
+  "version": 3
 }

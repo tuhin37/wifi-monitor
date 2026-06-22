@@ -1,5 +1,6 @@
 services:
   exporter:
+    image: wifi-monitor-exporter:local
     build:
       context: ./exporter
       dockerfile: Dockerfile.dev
@@ -11,10 +12,10 @@ services:
       - EXPORTER_PORT=8501
       - DATA_DIR=/data
       - SCANNER_BACKEND=iw
-      - SCANNER_INTERFACE=\${SCANNER_INTERFACE:-wlan0}
+      - SCANNER_INTERFACE=wlp5s0
       - POLL_INTERVAL=15
     volumes:
-      - exporter_data:/data
+      - ./data:/data
 
   prometheus:
     image: prom/prometheus:latest
@@ -27,8 +28,8 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.retention.time=7d"
+      - "--web.enable-admin-api"
     depends_on: [exporter]
 
 volumes:
-  exporter_data:
   prometheus_data:
